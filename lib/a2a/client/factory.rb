@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require "faraday"
+require_relative "transports"
+require_relative "base_client"
+
 module A2a
   module Client
     # ClientFactory is used to generate the appropriate client for the agent.
@@ -57,10 +61,15 @@ module A2a
         merge_consumers(consumers)
         merge_extensions(extensions)
 
-        @registry[transport_protocol.to_s].call(card, transport_url, @config, interceptors || [])
+        transport = @registry[transport_protocol.to_s].call(card, transport_url, @config, interceptors || [])
 
-        # NOTE: BaseClient will be implemented in Phase 3
-        # The transport producer will raise NotImplementedError when called
+        BaseClient.new(
+          card: card,
+          config: @config,
+          transport: transport,
+          consumers: merge_consumers(consumers),
+          middleware: interceptors || []
+        )
       end
 
       # Convenience method for constructing a client.
@@ -157,8 +166,15 @@ module A2a
         if supported.empty? || supported.include?(Types::TransportProtocol::JSONRPC)
           register(
             Types::TransportProtocol::JSONRPC,
-            lambda do |_card, _url, _config, _interceptors|
-              raise NotImplementedError, "JSON-RPC transport not yet implemented. This will be implemented in Phase 3."
+            lambda do |card, url, config, interceptors|
+              http_client = config.httpx_client || Faraday.new
+              Transports::JSONRPC.new(
+                http_client: http_client,
+                agent_card: card,
+                url: url,
+                interceptors: interceptors || [],
+                extensions: config.extensions
+              )
             end
           )
         end

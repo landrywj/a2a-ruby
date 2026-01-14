@@ -81,6 +81,52 @@ module A2a
 
         Types::Task.new(task_attrs)
       end
+
+      # Helper method for updating a Task object with new artifact data from an event.
+      #
+      # Handles creating the artifacts list if it doesn't exist, adding new artifacts,
+      # and appending parts to existing artifacts based on the `append` flag in the event.
+      #
+      # @param task [Types::Task] The Task object to modify
+      # @param event [Types::TaskArtifactUpdateEvent] The TaskArtifactUpdateEvent containing the artifact data
+      def self.append_artifact_to_task(task, event)
+        task.artifacts ||= []
+
+        new_artifact_data = event.artifact
+        artifact_id = new_artifact_data.artifact_id
+        append_parts = event.append || false
+
+        existing_artifact = nil
+        existing_artifact_list_index = nil
+
+        # Find existing artifact by its id
+        task.artifacts.each_with_index do |art, i|
+          if art.artifact_id == artifact_id
+            existing_artifact = art
+            existing_artifact_list_index = i
+            break
+          end
+        end
+
+        if !append_parts
+          # This represents the first chunk for this artifact index.
+          if existing_artifact_list_index
+            # Replace the existing artifact entirely with the new data
+            task.artifacts[existing_artifact_list_index] = new_artifact_data
+          else
+            # Append the new artifact since no artifact with this index exists yet
+            task.artifacts << new_artifact_data
+          end
+        elsif existing_artifact
+          # Append new parts to the existing artifact's part list
+          existing_artifact.parts ||= []
+          existing_artifact.parts.concat(new_artifact_data.parts || [])
+        else
+          # We received a chunk to append, but we don't have an existing artifact.
+          # We will ignore this chunk
+          # (In production, you might want to log a warning here)
+        end
+      end
     end
   end
 end

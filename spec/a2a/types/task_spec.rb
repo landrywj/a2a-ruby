@@ -286,3 +286,103 @@ RSpec.describe A2a::Types::Task do
     end
   end
 end
+
+RSpec.describe A2a::Types::TaskStatusUpdateEvent do
+  describe "#initialize" do
+    it "creates a status update event" do
+      status = A2a::Types::TaskStatus.new(state: A2a::Types::TaskState::WORKING)
+      event = described_class.new(
+        task_id: "task-123",
+        context_id: "ctx-123",
+        status: status,
+        final: false
+      )
+
+      expect(event.kind).to eq("status-update")
+      expect(event.task_id).to eq("task-123")
+      expect(event.context_id).to eq("ctx-123")
+      expect(event.status).to eq(status)
+      expect(event.final).to be false
+    end
+
+    it "accepts metadata" do
+      status = A2a::Types::TaskStatus.new(state: A2a::Types::TaskState::WORKING)
+      event = described_class.new(
+        task_id: "task-123",
+        context_id: "ctx-123",
+        status: status,
+        final: false,
+        metadata: { "key" => "value" }
+      )
+
+      expect(event.metadata).to eq({ "key" => "value" })
+    end
+
+    it "handles camelCase keys" do
+      status = A2a::Types::TaskStatus.new(state: A2a::Types::TaskState::WORKING)
+      event = described_class.new(
+        "taskId" => "task-123",
+        "contextId" => "ctx-123",
+        "status" => status,
+        "final" => true
+      )
+
+      expect(event.task_id).to eq("task-123")
+      expect(event.context_id).to eq("ctx-123")
+      expect(event.final).to be true
+    end
+  end
+end
+
+RSpec.describe A2a::Types::TaskArtifactUpdateEvent do
+  describe "#initialize" do
+    let(:artifact) do
+      A2a::Types::Artifact.new(
+        artifact_id: "art-123",
+        parts: [A2a::Types::Part.new(root: A2a::Types::TextPart.new(text: "Content"))]
+      )
+    end
+
+    it "creates an artifact update event" do
+      event = described_class.new(
+        task_id: "task-123",
+        context_id: "ctx-123",
+        artifact: artifact,
+        append: false,
+        last_chunk: true
+      )
+
+      expect(event.kind).to eq("artifact-update")
+      expect(event.task_id).to eq("task-123")
+      expect(event.context_id).to eq("ctx-123")
+      expect(event.artifact).to eq(artifact)
+      expect(event.append).to be false
+      expect(event.last_chunk).to be true
+    end
+
+    it "accepts metadata" do
+      event = described_class.new(
+        task_id: "task-123",
+        context_id: "ctx-123",
+        artifact: artifact,
+        metadata: { "key" => "value" }
+      )
+
+      expect(event.metadata).to eq({ "key" => "value" })
+    end
+
+    it "handles camelCase keys" do
+      event = described_class.new(
+        "taskId" => "task-123",
+        "contextId" => "ctx-123",
+        "artifact" => artifact,
+        "append" => true,
+        "lastChunk" => false
+      )
+
+      expect(event.task_id).to eq("task-123")
+      expect(event.append).to be true
+      expect(event.last_chunk).to be false
+    end
+  end
+end

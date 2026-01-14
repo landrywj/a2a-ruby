@@ -39,10 +39,13 @@ RSpec.describe A2a::Client::Factory do
   end
 
   describe "#create" do
-    it "raises NotImplementedError when transport is not implemented" do
-      expect do
-        factory.create(card: base_agent_card)
-      end.to raise_error(NotImplementedError, /JSON-RPC transport not yet implemented/)
+    it "creates a BaseClient with JSON-RPC transport" do
+      stub_request(:post, "https://example.com")
+        .to_return(status: 200, body: { jsonrpc: "2.0", id: "1", result: {} }.to_json)
+
+      client = factory.create(card: base_agent_card)
+      expect(client).to be_a(A2a::Client::BaseClient)
+      expect(client.transport).to be_a(A2a::Client::Transports::JSONRPC)
     end
 
     context "with transport selection" do
@@ -60,6 +63,7 @@ RSpec.describe A2a::Client::Factory do
         )
         config.supported_transports = [A2a::Types::TransportProtocol::HTTP_JSON, A2a::Types::TransportProtocol::JSONRPC]
 
+        # Server prefers HTTP_JSON, but it's not implemented yet (Phase 5)
         expect do
           factory.create(card: card)
         end.to raise_error(NotImplementedError, /REST transport not yet implemented/)
@@ -79,9 +83,12 @@ RSpec.describe A2a::Client::Factory do
         )
         config.supported_transports = [A2a::Types::TransportProtocol::JSONRPC, A2a::Types::TransportProtocol::HTTP_JSON]
 
-        expect do
-          factory.create(card: card)
-        end.to raise_error(NotImplementedError, /JSON-RPC transport not yet implemented/)
+        stub_request(:post, "https://example.com/jsonrpc")
+          .to_return(status: 200, body: { jsonrpc: "2.0", id: "1", result: {} }.to_json)
+
+        client = factory.create(card: card)
+        expect(client).to be_a(A2a::Client::BaseClient)
+        expect(client.transport.url).to eq("https://example.com/jsonrpc")
       end
 
       it "raises ArgumentError when no compatible transports found" do
@@ -102,18 +109,22 @@ RSpec.describe A2a::Client::Factory do
       factory = described_class.new(config, consumers: factory_consumers)
       additional_consumers = [proc { |_e, _c| :additional }]
 
-      expect do
-        factory.create(card: base_agent_card, consumers: additional_consumers)
-      end.to raise_error(NotImplementedError)
+      stub_request(:post, "https://example.com")
+        .to_return(status: 200, body: { jsonrpc: "2.0", id: "1", result: {} }.to_json)
+
+      client = factory.create(card: base_agent_card, consumers: additional_consumers)
+      expect(client.consumers.length).to eq(2)
     end
 
     it "merges extensions" do
       config.extensions = ["ext1"]
       additional_extensions = ["ext2"]
 
-      expect do
-        factory.create(card: base_agent_card, extensions: additional_extensions)
-      end.to raise_error(NotImplementedError)
+      stub_request(:post, "https://example.com")
+        .to_return(status: 200, body: { jsonrpc: "2.0", id: "1", result: {} }.to_json)
+
+      client = factory.create(card: base_agent_card, extensions: additional_extensions)
+      expect(client.transport.extensions).to include("ext1", "ext2")
     end
   end
 
@@ -125,20 +136,30 @@ RSpec.describe A2a::Client::Factory do
           body: {
             name: "Test Agent",
             url: "https://example.com",
-            preferredTransport: "JSONRPC"
+            preferredTransport: "JSONRPC",
+            version: "1.0.0",
+            description: "Test",
+            skills: [],
+            capabilities: {},
+            defaultInputModes: [],
+            defaultOutputModes: []
           }.to_json,
           headers: { "Content-Type" => "application/json" }
         )
 
-      expect do
-        described_class.connect(agent: "https://example.com")
-      end.to raise_error(NotImplementedError, /JSON-RPC transport not yet implemented/)
+      stub_request(:post, "https://example.com")
+        .to_return(status: 200, body: { jsonrpc: "2.0", id: "1", result: {} }.to_json)
+
+      client = described_class.connect(agent: "https://example.com")
+      expect(client).to be_a(A2a::Client::BaseClient)
     end
 
     it "creates client from AgentCard" do
-      expect do
-        described_class.connect(agent: base_agent_card)
-      end.to raise_error(NotImplementedError, /JSON-RPC transport not yet implemented/)
+      stub_request(:post, "https://example.com")
+        .to_return(status: 200, body: { jsonrpc: "2.0", id: "1", result: {} }.to_json)
+
+      client = described_class.connect(agent: base_agent_card)
+      expect(client).to be_a(A2a::Client::BaseClient)
     end
 
     it "passes resolver arguments" do
@@ -149,18 +170,26 @@ RSpec.describe A2a::Client::Factory do
           body: {
             name: "Test Agent",
             url: "https://example.com",
-            preferredTransport: "JSONRPC"
+            preferredTransport: "JSONRPC",
+            version: "1.0.0",
+            description: "Test",
+            skills: [],
+            capabilities: {},
+            defaultInputModes: [],
+            defaultOutputModes: []
           }.to_json,
           headers: { "Content-Type" => "application/json" }
         )
 
-      expect do
-        described_class.connect(
-          agent: "https://example.com",
-          relative_card_path: "custom/path",
-          resolver_http_kwargs: { headers: { "Authorization" => "Bearer token" } }
-        )
-      end.to raise_error(NotImplementedError)
+      stub_request(:post, "https://example.com")
+        .to_return(status: 200, body: { jsonrpc: "2.0", id: "1", result: {} }.to_json)
+
+      client = described_class.connect(
+        agent: "https://example.com",
+        relative_card_path: "custom/path",
+        resolver_http_kwargs: { headers: { "Authorization" => "Bearer token" } }
+      )
+      expect(client).to be_a(A2a::Client::BaseClient)
     end
   end
 

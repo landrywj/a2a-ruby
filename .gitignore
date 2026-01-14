@@ -10,3 +10,5 @@ Implementation_Plan.md
 IMPLEMENTATION_PLAN.md
 # rspec failure tracking
 .rspec_status
+.cursorrules
+log.md
