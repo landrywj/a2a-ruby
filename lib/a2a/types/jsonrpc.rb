@@ -137,6 +137,30 @@ module A2a
       end
     end
 
+    # Represents a JSON-RPC request for the `tasks/pushNotificationConfig/list` method
+    class ListTaskPushNotificationConfigRequest < JSONRPCRequest
+      def initialize(attributes = {})
+        super
+        @method = "tasks/pushNotificationConfig/list"
+        params_data = attributes[:params] || attributes["params"]
+        @params = if params_data
+                    params_data.is_a?(ListTaskPushNotificationConfigParams) ? params_data : ListTaskPushNotificationConfigParams.new(params_data)
+                  end
+      end
+    end
+
+    # Represents a JSON-RPC request for the `tasks/pushNotificationConfig/delete` method
+    class DeleteTaskPushNotificationConfigRequest < JSONRPCRequest
+      def initialize(attributes = {})
+        super
+        @method = "tasks/pushNotificationConfig/delete"
+        params_data = attributes[:params] || attributes["params"]
+        @params = if params_data
+                    params_data.is_a?(DeleteTaskPushNotificationConfigParams) ? params_data : DeleteTaskPushNotificationConfigParams.new(params_data)
+                  end
+      end
+    end
+
     # Base class for JSON-RPC 2.0 success responses
     class JSONRPCSuccessResponse < BaseModel
       attr_accessor :id, :jsonrpc, :result
@@ -175,6 +199,14 @@ module A2a
 
     # Represents a successful JSON-RPC response for the `agent/getAuthenticatedExtendedCard` method
     class GetAuthenticatedExtendedCardSuccessResponse < JSONRPCSuccessResponse
+    end
+
+    # Represents a successful JSON-RPC response for the `tasks/pushNotificationConfig/list` method
+    class ListTaskPushNotificationConfigSuccessResponse < JSONRPCSuccessResponse
+    end
+
+    # Represents a successful JSON-RPC response for the `tasks/pushNotificationConfig/delete` method
+    class DeleteTaskPushNotificationConfigSuccessResponse < JSONRPCSuccessResponse
     end
   end
 end
