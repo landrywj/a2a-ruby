@@ -10,6 +10,7 @@ require_relative "client/base_client"
 require_relative "client/task_manager"
 require_relative "client/helpers"
 require_relative "client/transports"
+require_relative "client/auth"
 
 module A2a
   # Client-side components for interacting with an A2A agent
