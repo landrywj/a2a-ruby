@@ -1,0 +1,47 @@
+# Code Review Workflow
+# This workflow automatically reviews pull requests targeting the main branch using AI.
+# 
+# Setup required:
+# 1. Add OPENAI_API_KEY to GitHub repository secrets (Settings > Secrets and variables > Actions)
+# 2. The workflow will automatically run on pull requests to main branch
+#
+# The review will:
+# - Only review code in lib/ and spec/ directories
+# - Exclude markdown, text, and config files
+# - Use GPT-4 model for comprehensive reviews
+# - Post comments directly on the PR
+
+name: Code Review
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  code-review:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Code Review
+        uses: fxchen/code-review@latest
+        with:
+          openai-key: ${{ secrets.OPENAI_API_KEY }}
+          model: 'gpt-4'
+          persona: 'developer'
+          style: 'concise'
+          include-full-files: 'false'
+          exclude-files: '*.md,*.txt,*.yml,*.yaml,*.gemspec,Gemfile*'
+          path-filter: |
+            lib/**
+            spec/**
