@@ -63,10 +63,10 @@ RSpec.describe A2a::Client::Factory do
         )
         config.supported_transports = [A2a::Types::TransportProtocol::HTTP_JSON, A2a::Types::TransportProtocol::JSONRPC]
 
-        # Server prefers HTTP_JSON, but it's not implemented yet (Phase 5)
-        expect do
-          factory.create(card: card)
-        end.to raise_error(NotImplementedError, /REST transport not yet implemented/)
+        # Server prefers HTTP_JSON (REST transport is now implemented in Phase 5)
+        client = factory.create(card: card)
+        expect(client).to be_a(A2a::Client::BaseClient)
+        expect(client.transport).to be_a(A2a::Client::Transports::REST)
       end
 
       it "selects client preferred transport when use_client_preference is true" do

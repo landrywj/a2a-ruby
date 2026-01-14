@@ -61,11 +61,12 @@ module A2a
 
     # Defines parameters for getting push notification configuration.
     class GetTaskPushNotificationConfigParams < BaseModel
-      attr_accessor :id, :metadata
+      attr_accessor :id, :push_notification_config_id, :metadata
 
       def initialize(attributes = {})
         super
         @id = attributes[:id] || attributes["id"]
+        @push_notification_config_id = attributes[:push_notification_config_id] || attributes["pushNotificationConfigId"]
         @metadata = attributes[:metadata] || attributes["metadata"]
       end
     end
@@ -86,10 +87,11 @@ module A2a
 
     # Defines the configuration for setting up push notifications for task updates.
     class PushNotificationConfig < BaseModel
-      attr_accessor :url, :token, :authentication
+      attr_accessor :id, :url, :token, :authentication
 
       def initialize(attributes = {})
         super
+        @id = attributes[:id] || attributes["id"]
         @url = attributes[:url] || attributes["url"]
         @token = attributes[:token] || attributes["token"]
         auth_data = attributes[:authentication] || attributes["authentication"]
