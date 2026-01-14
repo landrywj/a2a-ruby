@@ -175,8 +175,8 @@ end
 RSpec.describe A2a::Types::PushNotificationAuthenticationInfo do
   describe "#initialize" do
     it "creates auth info with schemes" do
-      auth = described_class.new(schemes: ["Bearer", "Basic"])
-      expect(auth.schemes).to eq(["Bearer", "Basic"])
+      auth = described_class.new(schemes: %w[Bearer Basic])
+      expect(auth.schemes).to eq(%w[Bearer Basic])
     end
 
     it "accepts credentials" do

@@ -97,12 +97,12 @@ RSpec.describe A2a::Types::JSONRPCError do
   describe "#initialize" do
     it "creates a JSON-RPC error" do
       error = described_class.new(
-        code: -32601,
+        code: -32_601,
         message: "Method not found",
         data: { "details" => "test" }
       )
 
-      expect(error.code).to eq(-32601)
+      expect(error.code).to eq(-32_601)
       expect(error.message).to eq("Method not found")
       expect(error.data).to eq({ "details" => "test" })
     end
@@ -112,7 +112,7 @@ end
 RSpec.describe A2a::Types::JSONRPCErrorResponse do
   describe "#initialize" do
     it "creates an error response" do
-      error = A2a::Types::JSONRPCError.new(code: -32601, message: "Error")
+      error = A2a::Types::JSONRPCError.new(code: -32_601, message: "Error")
       response = described_class.new(id: "req-123", error: error)
 
       expect(response.id).to eq("req-123")

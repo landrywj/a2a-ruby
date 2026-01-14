@@ -8,8 +8,15 @@ module A2a
     class CallContext
       attr_accessor :state
 
-      def initialize(state = {})
-        @state = state || {}
+      def initialize(state = nil, **kwargs)
+        # Support both keyword argument and positional argument
+        @state = if state.nil? && kwargs.key?(:state)
+                   kwargs[:state] || {}
+                 elsif state.is_a?(Hash) && !state.key?(:state)
+                   state || {}
+                 else
+                   kwargs[:state] || state || {}
+                 end
       end
     end
 

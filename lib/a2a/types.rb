@@ -9,6 +9,7 @@ require_relative "types/task"
 require_relative "types/agent_card"
 require_relative "types/params"
 require_relative "types/jsonrpc"
+require_relative "types/security_schemes"
 
 module A2a
   # Core A2A Protocol types and models

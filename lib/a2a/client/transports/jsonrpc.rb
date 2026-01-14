@@ -23,7 +23,7 @@ module A2a
         # @param interceptors [Array<CallInterceptor>] A list of interceptors
         # @param extensions [Array<String>, nil] List of extensions to activate
         def initialize(http_client:, agent_card: nil, url: nil, interceptors: [], extensions: nil)
-          @url = url || (agent_card&.url)
+          @url = url || agent_card&.url
           raise ArgumentError, "Must provide either agent_card or url" unless @url
 
           @http_client = http_client
@@ -57,7 +57,7 @@ module A2a
           )
           response_data = send_request(payload, modified_kwargs)
           response = parse_response(response_data, Types::SendMessageSuccessResponse, Types::JSONRPCErrorResponse)
-          raise JSONRPCError.new(response.error) if response.is_a?(Types::JSONRPCErrorResponse)
+          raise JSONRPCError, response.error if response.is_a?(Types::JSONRPCErrorResponse)
 
           deserialize_result(response.result)
         end
@@ -88,26 +88,24 @@ module A2a
 
           # Create enumerator for streaming responses
           Enumerator.new do |yielder|
-            begin
-              response = @http_client.post(@url) do |req|
-                req.headers.merge!(modified_kwargs[:headers] || {})
-                req.body = payload.to_json
-                req.options.timeout = modified_kwargs[:timeout] if modified_kwargs[:timeout]
-              end
-
-              raise HTTPError.new(response.status, response.reason_phrase) unless response.success?
-
-              # Parse SSE stream
-              parse_sse_stream(response.body, yielder)
-            rescue Faraday::TimeoutError => e
-              raise TimeoutError.new("Client Request timed out: #{e.message}")
-            rescue Faraday::ClientError, Faraday::ServerError => e
-              raise HTTPError.new(e.response&.status || 503, "HTTP error: #{e.message}")
-            rescue JSON::ParserError => e
-              raise JSONError.new("JSON parse error: #{e.message}")
-            rescue Faraday::Error => e
-              raise HTTPError.new(503, "Network communication error: #{e.message}")
+            response = @http_client.post(@url) do |req|
+              req.headers.merge!(modified_kwargs[:headers] || {})
+              req.body = payload.to_json
+              req.options.timeout = modified_kwargs[:timeout] if modified_kwargs[:timeout]
             end
+
+            raise HTTPError.new(response.status, response.reason_phrase) unless response.success?
+
+            # Parse SSE stream
+            parse_sse_stream(response.body, yielder)
+          rescue Faraday::TimeoutError => e
+            raise TimeoutError, "Client Request timed out: #{e.message}"
+          rescue Faraday::ClientError, Faraday::ServerError => e
+            raise HTTPError.new(e.response&.status || 503, "HTTP error: #{e.message}")
+          rescue JSON::ParserError => e
+            raise JSONError, "JSON parse error: #{e.message}"
+          rescue Faraday::Error => e
+            raise HTTPError.new(503, "Network communication error: #{e.message}")
           end
         end
 
@@ -131,7 +129,7 @@ module A2a
           )
           response_data = send_request(payload, modified_kwargs)
           response = parse_response(response_data, Types::GetTaskSuccessResponse, Types::JSONRPCErrorResponse)
-          raise JSONRPCError.new(response.error) if response.is_a?(Types::JSONRPCErrorResponse)
+          raise JSONRPCError, response.error if response.is_a?(Types::JSONRPCErrorResponse)
 
           Types::Task.new(response.result)
         end
@@ -156,7 +154,7 @@ module A2a
           )
           response_data = send_request(payload, modified_kwargs)
           response = parse_response(response_data, Types::CancelTaskSuccessResponse, Types::JSONRPCErrorResponse)
-          raise JSONRPCError.new(response.error) if response.is_a?(Types::JSONRPCErrorResponse)
+          raise JSONRPCError, response.error if response.is_a?(Types::JSONRPCErrorResponse)
 
           Types::Task.new(response.result)
         end
@@ -181,7 +179,7 @@ module A2a
           )
           response_data = send_request(payload, modified_kwargs)
           response = parse_response(response_data, Types::SetTaskPushNotificationConfigSuccessResponse, Types::JSONRPCErrorResponse)
-          raise JSONRPCError.new(response.error) if response.is_a?(Types::JSONRPCErrorResponse)
+          raise JSONRPCError, response.error if response.is_a?(Types::JSONRPCErrorResponse)
 
           Types::TaskPushNotificationConfig.new(response.result)
         end
@@ -206,7 +204,7 @@ module A2a
           )
           response_data = send_request(payload, modified_kwargs)
           response = parse_response(response_data, Types::GetTaskPushNotificationConfigSuccessResponse, Types::JSONRPCErrorResponse)
-          raise JSONRPCError.new(response.error) if response.is_a?(Types::JSONRPCErrorResponse)
+          raise JSONRPCError, response.error if response.is_a?(Types::JSONRPCErrorResponse)
 
           Types::TaskPushNotificationConfig.new(response.result)
         end
@@ -237,26 +235,24 @@ module A2a
 
           # Create enumerator for streaming responses
           Enumerator.new do |yielder|
-            begin
-              response = @http_client.post(@url) do |req|
-                req.headers.merge!(modified_kwargs[:headers] || {})
-                req.body = payload.to_json
-                req.options.timeout = modified_kwargs[:timeout] if modified_kwargs[:timeout]
-              end
-
-              raise HTTPError.new(response.status, response.reason_phrase) unless response.success?
-
-              # Parse SSE stream
-              parse_sse_stream(response.body, yielder)
-            rescue Faraday::TimeoutError => e
-              raise TimeoutError.new("Client Request timed out: #{e.message}")
-            rescue Faraday::ClientError, Faraday::ServerError => e
-              raise HTTPError.new(e.response&.status || 503, "HTTP error: #{e.message}")
-            rescue JSON::ParserError => e
-              raise JSONError.new("JSON parse error: #{e.message}")
-            rescue Faraday::Error => e
-              raise HTTPError.new(503, "Network communication error: #{e.message}")
+            response = @http_client.post(@url) do |req|
+              req.headers.merge!(modified_kwargs[:headers] || {})
+              req.body = payload.to_json
+              req.options.timeout = modified_kwargs[:timeout] if modified_kwargs[:timeout]
             end
+
+            raise HTTPError.new(response.status, response.reason_phrase) unless response.success?
+
+            # Parse SSE stream
+            parse_sse_stream(response.body, yielder)
+          rescue Faraday::TimeoutError => e
+            raise TimeoutError, "Client Request timed out: #{e.message}"
+          rescue Faraday::ClientError, Faraday::ServerError => e
+            raise HTTPError.new(e.response&.status || 503, "HTTP error: #{e.message}")
+          rescue JSON::ParserError => e
+            raise JSONError, "JSON parse error: #{e.message}"
+          rescue Faraday::Error => e
+            raise HTTPError.new(503, "Network communication error: #{e.message}")
           end
         end
 
@@ -291,7 +287,7 @@ module A2a
           )
           response_data = send_request(payload, modified_kwargs)
           response = parse_response(response_data, Types::GetAuthenticatedExtendedCardSuccessResponse, Types::JSONRPCErrorResponse)
-          raise JSONRPCError.new(response.error) if response.is_a?(Types::JSONRPCErrorResponse)
+          raise JSONRPCError, response.error if response.is_a?(Types::JSONRPCErrorResponse)
 
           card = Types::AgentCard.new(response.result)
           signature_verifier&.call(card)
@@ -331,30 +327,27 @@ module A2a
         end
 
         def send_request(rpc_request_payload, http_kwargs = nil)
-          begin
-            response = @http_client.post(@url) do |req|
-              req.headers["Content-Type"] = "application/json"
-              req.headers.merge!(http_kwargs[:headers] || {}) if http_kwargs
-              req.body = rpc_request_payload.to_json
-              req.options.timeout = http_kwargs[:timeout] if http_kwargs&.dig(:timeout)
-            end
-
-            raise HTTPError.new(response.status, response.reason_phrase || "HTTP Error") unless response.success?
-
-            JSON.parse(response.body)
-          rescue Faraday::TimeoutError, Timeout::Error => e
-            raise TimeoutError.new("Client Request timed out: #{e.message}")
-          rescue Faraday::ClientError, Faraday::ServerError => e
-            raise HTTPError.new(e.response&.status || 503, "HTTP error: #{e.message}")
-          rescue JSON::ParserError => e
-            raise JSONError.new("JSON parse error: #{e.message}")
-          rescue Faraday::Error => e
-            # Check if it's a timeout error
-            if e.message.include?("timeout") || e.message.include?("execution expired")
-              raise TimeoutError.new("Client Request timed out: #{e.message}")
-            end
-            raise HTTPError.new(503, "Network communication error: #{e.message}")
+          response = @http_client.post(@url) do |req|
+            req.headers["Content-Type"] = "application/json"
+            req.headers.merge!(http_kwargs[:headers] || {}) if http_kwargs
+            req.body = rpc_request_payload.to_json
+            req.options.timeout = http_kwargs[:timeout] if http_kwargs&.dig(:timeout)
           end
+
+          raise HTTPError.new(response.status, response.reason_phrase || "HTTP Error") unless response.success?
+
+          JSON.parse(response.body)
+        rescue Faraday::TimeoutError, Timeout::Error => e
+          raise TimeoutError, "Client Request timed out: #{e.message}"
+        rescue Faraday::ClientError, Faraday::ServerError => e
+          raise HTTPError.new(e.response&.status || 503, "HTTP error: #{e.message}")
+        rescue JSON::ParserError => e
+          raise JSONError, "JSON parse error: #{e.message}"
+        rescue Faraday::Error => e
+          # Check if it's a timeout error
+          raise TimeoutError, "Client Request timed out: #{e.message}" if e.message.include?("timeout") || e.message.include?("execution expired")
+
+          raise HTTPError.new(503, "Network communication error: #{e.message}")
         end
 
         def parse_response(response_data, success_class, error_class)
@@ -369,7 +362,7 @@ module A2a
         def deserialize_result(result)
           # Result can be a Task or Message
           if result.is_a?(Hash)
-            if result["kind"] == "task" || result.key?("id") && result.key?("contextId")
+            if result["kind"] == "task" || (result.key?("id") && result.key?("contextId"))
               Types::Task.new(result)
             elsif result["kind"] == "message" || result.key?("messageId")
               Types::Message.new(result)
@@ -401,12 +394,12 @@ module A2a
             begin
               response_data = JSON.parse(json_data)
               response = parse_response(response_data, Types::SendStreamingMessageSuccessResponse, Types::JSONRPCErrorResponse)
-              raise JSONRPCError.new(response.error) if response.is_a?(Types::JSONRPCErrorResponse)
+              raise JSONRPCError, response.error if response.is_a?(Types::JSONRPCErrorResponse)
 
               result = deserialize_result(response.result)
               yielder << result
             rescue JSON::ParserError => e
-              raise JSONError.new("Invalid SSE data format: #{e.message}")
+              raise JSONError, "Invalid SSE data format: #{e.message}"
             end
           end
         end

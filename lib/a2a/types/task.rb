@@ -77,8 +77,16 @@ module A2a
                       artifact_data.is_a?(Artifact) ? artifact_data : Artifact.new(artifact_data)
                     end
         # Handle false values explicitly - check if key exists, not just truthiness
-        @append = attributes.key?(:append) ? attributes[:append] : (attributes.key?("append") ? attributes["append"] : nil)
-        @last_chunk = attributes.key?(:last_chunk) ? attributes[:last_chunk] : (attributes.key?("lastChunk") ? attributes["lastChunk"] : nil)
+        @append = if attributes.key?(:append)
+                    attributes[:append]
+                  else
+                    (attributes.key?("append") ? attributes["append"] : nil)
+                  end
+        @last_chunk = if attributes.key?(:last_chunk)
+                        attributes[:last_chunk]
+                      else
+                        (attributes.key?("lastChunk") ? attributes["lastChunk"] : nil)
+                      end
         @metadata = attributes[:metadata] || attributes["metadata"]
       end
     end

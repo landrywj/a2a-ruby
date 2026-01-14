@@ -270,7 +270,9 @@ RSpec.describe A2a::Client::BaseClient do
 
   describe "#close" do
     it "closes the transport" do
-      expect(transport).to receive(:close)
+      allow(transport).to receive(:close)
+      client.close
+      expect(transport).to have_received(:close)
       client.close
     end
   end

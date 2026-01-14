@@ -46,7 +46,7 @@ module A2a
 
         if configuration
           # Merge configuration overrides
-          config_hash = base_config.to_h.merge(configuration.to_h.reject { |_k, v| v.nil? })
+          config_hash = base_config.to_h.merge(configuration.to_h.compact)
           final_config = Types::MessageSendConfiguration.new(config_hash)
         else
           final_config = base_config
@@ -166,9 +166,7 @@ module A2a
       # @return [Enumerator] An enumerator of ClientEvent objects
       # @raise [NotImplementedError] If streaming is not supported by the client or server
       def resubscribe(request:, context: nil, extensions: nil)
-        unless @config.streaming && @card.capabilities&.streaming
-          raise NotImplementedError, "client and/or server do not support resubscription."
-        end
+        raise NotImplementedError, "client and/or server do not support resubscription." unless @config.streaming && @card.capabilities&.streaming
 
         tracker = TaskManager.new
         stream = @transport.resubscribe(
@@ -214,9 +212,7 @@ module A2a
       private
 
       def process_response(tracker, event)
-        if event.is_a?(Types::Message)
-          raise InvalidStateError.new("received a streamed Message from server after first response; this is not supported")
-        end
+        raise InvalidStateError, "received a streamed Message from server after first response; this is not supported" if event.is_a?(Types::Message)
 
         tracker.process(event)
         task = tracker.get_task_or_raise

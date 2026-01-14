@@ -53,8 +53,8 @@ module A2a
                    end
         config_data = attributes[:configuration] || attributes["configuration"]
         @configuration = if config_data
-                          config_data.is_a?(MessageSendConfiguration) ? config_data : MessageSendConfiguration.new(config_data)
-                        end
+                           config_data.is_a?(MessageSendConfiguration) ? config_data : MessageSendConfiguration.new(config_data)
+                         end
         @metadata = attributes[:metadata] || attributes["metadata"]
       end
     end

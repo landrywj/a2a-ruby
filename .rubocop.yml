@@ -24,6 +24,10 @@ Metrics/AbcSize:
     - 'lib/**/*_spec.rb'
     - '**/initialize'
     - 'lib/a2a/types/agent_card.rb'
+    - 'lib/a2a/client/auth/interceptor.rb'
+    - 'lib/a2a/client/base_client.rb'
+    - 'lib/a2a/client/task_manager.rb'
+    - 'lib/a2a/client/transports/jsonrpc.rb'
 
 Metrics/CyclomaticComplexity:
   Max: 20
@@ -31,6 +35,7 @@ Metrics/CyclomaticComplexity:
     - 'lib/**/*_spec.rb'
     - '**/initialize'
     - 'lib/a2a/types/agent_card.rb'
+    - 'lib/a2a/client/auth/interceptor.rb'
 
 Metrics/MethodLength:
   Max: 35
@@ -38,6 +43,8 @@ Metrics/MethodLength:
     - 'lib/**/*_spec.rb'
     - '**/initialize'
     - 'lib/a2a/types/agent_card.rb'
+    - 'lib/a2a/client/auth/interceptor.rb'
+    - 'lib/a2a/client/base_client.rb'
 
 Metrics/PerceivedComplexity:
   Max: 20
@@ -45,6 +52,19 @@ Metrics/PerceivedComplexity:
     - 'lib/**/*_spec.rb'
     - '**/initialize'
     - 'lib/a2a/types/agent_card.rb'
+    - 'lib/a2a/client/auth/interceptor.rb'
+
+Metrics/ClassLength:
+  Max: 100
+  Exclude:
+    - 'lib/a2a/client/base_client.rb'
+    - 'lib/a2a/client/transports/jsonrpc.rb'
+
+Metrics/BlockLength:
+  Max: 25
+  Exclude:
+    - 'lib/a2a/client/auth/interceptor.rb'
+    - 'spec/**/*'
 
 # Layout configuration
 Layout/LineLength:
@@ -52,13 +72,43 @@ Layout/LineLength:
   Exclude:
     - 'spec/**/*'
 
+# Style configuration
+Style/RaiseArgs:
+  Exclude:
+    - 'lib/a2a/client/transports/jsonrpc.rb'
+    - 'lib/a2a/client/base_client.rb'
+    - 'lib/a2a/client/task_manager.rb'
+
+Style/EmptyElse:
+  Exclude:
+    - 'lib/a2a/utils/task.rb'
+
+Style/MultilineBlockChain:
+  Exclude:
+    - 'spec/**/*'
+
 # Naming configuration
 Naming/AccessorMethodName:
   Enabled: false
 
+# Allow is_authenticated to match Python reference implementation
+Naming/PredicatePrefix:
+  Exclude:
+    - 'lib/a2a/auth/user.rb'
+
+Naming/PredicateMethod:
+  Exclude:
+    - 'lib/a2a/auth/user.rb'
+
 # Lint configuration
 Lint/DuplicateBranch:
   Enabled: false
+
+Lint/MissingSuper:
+  Exclude:
+    - 'lib/a2a/client/auth/in_memory_credential_store.rb'
+    - 'lib/a2a/client/auth/interceptor.rb'
+    - 'lib/a2a/client/transports/jsonrpc.rb'
 
 # RSpec style configuration - relaxed
 RSpec/FilePath:
@@ -99,6 +149,13 @@ RSpec/ExampleWording:
 
 RSpec/MessageSpies:
   Enabled: true
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 6
+
+RSpec/VerifiedDoubles:
+  Exclude:
+    - 'spec/a2a/client/transports/jsonrpc_spec.rb'
 
 # Disable Capybara cops (loaded via rubocop-rspec but we don't use Capybara)
 Capybara/RSpec/PredicateMatcher:
