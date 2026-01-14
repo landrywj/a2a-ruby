@@ -11,13 +11,16 @@ module A2a
         @artifact_id = attributes[:artifact_id] || attributes["artifactId"]
         @name = attributes[:name] || attributes["name"]
         @description = attributes[:description] || attributes["description"]
-        parts_data = attributes[:parts] || attributes["parts"]
-        @parts = if parts_data
-                   parts_data.map do |part|
-                     part.is_a?(Part) ? part : Part.new(part)
-                   end
-                 end
+        @parts = build_parts(attributes[:parts] || attributes["parts"])
         @extensions = attributes[:extensions] || attributes["extensions"]
+      end
+
+      private
+
+      def build_parts(parts_data)
+        parts_data&.map do |part|
+          part.is_a?(Part) ? part : Part.new(part)
+        end
       end
     end
   end
