@@ -1,43 +1,103 @@
-# A2a
+# A2A Ruby SDK
 
-TODO: Delete this and the text below, and describe your gem
+A Ruby implementation of the Agent-to-Agent (A2A) protocol. This SDK allows you to build agents that can communicate with each other using standardized JSON-RPC or REST interfaces.
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/a2a`. To experiment with that code, run `bin/console` for an interactive prompt.
+## Features
+
+- **Protocol Compliant**: Full implementation of the A2A Protocol specification.
+- **Pluggable Transports**: Supports JSON-RPC 2.0 and REST (HTTP/JSON).
+- **Security**: Built-in support for API Keys, OAuth2, OpenID Connect, and HTTP Bearer tokens.
+- **Rails-Ready**: Optimized for deployment in **Rails API-only** applications.
+- **Async & Background**: Integrated with `ActiveJob` for non-blocking agent interactions.
+- **Persistent State**: Supports `ActiveRecord` for tracking task history across distributed workers.
 
 ## Installation
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
+Add this line to your application's Gemfile:
 
-Install the gem and add to the application's Gemfile by executing:
-
-```bash
-bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+```ruby
+gem 'a2a'
 ```
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+And then execute:
 
 ```bash
-gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+bundle install
 ```
 
-## Usage
+## Rails API-Only Deployment
 
-TODO: Write usage instructions here
+This gem is designed to be the backbone of an agent-enabled Rails API.
+
+### 1. Configuration
+
+Create an initializer `config/initializers/a2a.rb`:
+
+```ruby
+A2a.configure do |config|
+  config.streaming = true
+  config.supported_transports = ['jsonrpc', 'http_json']
+end
+```
+
+### 2. Async Agent Interaction
+
+Instead of blocking your web workers, use `ActiveJob` to send messages to agents:
+
+```ruby
+# app/jobs/agent_task_job.rb
+class AgentTaskJob < ApplicationJob
+  queue_as :default
+
+  def perform(agent_url, message_text)
+    client = A2a::Client::Factory.connect(agent: agent_url)
+    
+    # Send message and process events asynchronously
+    client.send_message(request: A2a::Client::Helpers.create_text_message(message_text)) do |task, update|
+      # Update your ActiveRecord model with the task status
+      AgentTask.find_by(task_id: task.id).update!(
+        state: task.status.state,
+        last_update: update&.to_h
+      )
+      
+      # Optionally push updates to your frontend via ActionCable
+      ActionCable.server.broadcast("agent_task_#{task.id}", update)
+    end
+  end
+end
+```
+
+### 3. Handling Webhooks (Push Notifications)
+
+Mount the A2A callback controller in your `config/routes.rb`:
+
+```ruby
+Rails.application.routes.draw do
+  post '/a2a/callbacks/:task_id', to: 'a2a_callbacks#handle'
+end
+```
+
+And implement the controller to update your task state:
+
+```ruby
+# app/controllers/a2a_callbacks_controller.rb
+class A2aCallbacksController < ApplicationController
+  def handle
+    event = A2a::Types::TaskStatusUpdateEvent.new(params.to_unsafe_h)
+    task = AgentTask.find_by!(task_id: params[:task_id])
+    
+    # Update local state from the push notification
+    task.update_from_event!(event)
+    
+    head :ok
+  end
+end
+```
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/a2a. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/a2a/blob/main/CODE_OF_CONDUCT.md).
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests.
 
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
-## Code of Conduct
-
-Everyone interacting in the A2a project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/a2a/blob/main/CODE_OF_CONDUCT.md).
