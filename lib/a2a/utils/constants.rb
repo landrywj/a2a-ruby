@@ -1,0 +1,13 @@
+# frozen_string_literal: true
+
+module A2a
+  module Utils
+    # Constants for well-known URIs used throughout the A2A Ruby SDK
+    module Constants
+      AGENT_CARD_WELL_KNOWN_PATH = "/.well-known/agent-card.json"
+      PREV_AGENT_CARD_WELL_KNOWN_PATH = "/.well-known/agent.json"
+      EXTENDED_AGENT_CARD_PATH = "/agent/authenticatedExtendedCard"
+      DEFAULT_RPC_URL = "/"
+    end
+  end
+end
