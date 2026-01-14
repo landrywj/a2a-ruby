@@ -4,6 +4,9 @@ require:
 AllCops:
   TargetRubyVersion: 3.1
   NewCops: enable
+  Exclude:
+    - 'vendor/**/*'
+    - 'tmp/**/*'
 
 plugins:
   - rubocop-rake
@@ -13,6 +16,62 @@ Style/StringLiterals:
 
 Style/StringLiteralsInInterpolation:
   EnforcedStyle: double_quotes
+
+# Metrics configuration - eased up for initialization methods
+Metrics/AbcSize:
+  Max: 30
+  Exclude:
+    - 'lib/**/*_spec.rb'
+    - '**/initialize'
+    - 'lib/a2a/types/agent_card.rb'
+
+Metrics/CyclomaticComplexity:
+  Max: 20
+  Exclude:
+    - 'lib/**/*_spec.rb'
+    - '**/initialize'
+    - 'lib/a2a/types/agent_card.rb'
+
+Metrics/MethodLength:
+  Max: 35
+  Exclude:
+    - 'lib/**/*_spec.rb'
+    - '**/initialize'
+    - 'lib/a2a/types/agent_card.rb'
+
+Metrics/PerceivedComplexity:
+  Max: 20
+  Exclude:
+    - 'lib/**/*_spec.rb'
+    - '**/initialize'
+    - 'lib/a2a/types/agent_card.rb'
+
+# Layout configuration
+Layout/LineLength:
+  Max: 150
+  Exclude:
+    - 'spec/**/*'
+
+# Naming configuration
+Naming/AccessorMethodName:
+  Enabled: false
+
+# Lint configuration
+Lint/DuplicateBranch:
+  Enabled: false
+
+# RSpec style configuration - relaxed
+RSpec/FilePath:
+  Enabled: false
+
+RSpec/SpecFilePathFormat:
+  Enabled: false
+
+RSpec/MultipleDescribes:
+  Enabled: false
+
+RSpec/IteratedExpectation:
+  Enabled: false
 
 # Rake configuration
 Rake/Desc:

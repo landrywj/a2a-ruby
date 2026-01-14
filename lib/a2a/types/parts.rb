@@ -104,7 +104,7 @@ module A2a
                   when "data"
                     DataPart.new(root_data)
                   else
-                    # Default to TextPart if kind is not specified
+                    # Default to TextPart if kind is not specified or unknown
                     TextPart.new(root_data)
                   end
         end
