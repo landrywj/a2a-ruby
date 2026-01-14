@@ -32,7 +32,7 @@ RSpec.describe A2a::Types::BaseModel do
 
     it "handles camelCase keys" do
       instance = test_class.new("firstName" => "Bob", "lastName" => "Smith")
-      # Note: This tests that camelCase is handled in attribute access
+      # NOTE: This tests that camelCase is handled in attribute access
       expect(instance).to respond_to(:name)
     end
 

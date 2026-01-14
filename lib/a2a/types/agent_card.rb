@@ -48,9 +48,21 @@ module A2a
       def initialize(attributes = {})
         super
         # Handle false values explicitly - check if key exists, not just truthiness
-        @push_notifications = attributes.key?(:push_notifications) ? attributes[:push_notifications] : (attributes.key?("pushNotifications") ? attributes["pushNotifications"] : nil)
-        @streaming = attributes.key?(:streaming) ? attributes[:streaming] : (attributes.key?("streaming") ? attributes["streaming"] : nil)
-        @state_transition_history = attributes.key?(:state_transition_history) ? attributes[:state_transition_history] : (attributes.key?("stateTransitionHistory") ? attributes["stateTransitionHistory"] : nil)
+        @push_notifications = if attributes.key?(:push_notifications)
+                                attributes[:push_notifications]
+                              else
+                                (attributes.key?("pushNotifications") ? attributes["pushNotifications"] : nil)
+                              end
+        @streaming = if attributes.key?(:streaming)
+                       attributes[:streaming]
+                     else
+                       (attributes.key?("streaming") ? attributes["streaming"] : nil)
+                     end
+        @state_transition_history = if attributes.key?(:state_transition_history)
+                                      attributes[:state_transition_history]
+                                    else
+                                      (attributes.key?("stateTransitionHistory") ? attributes["stateTransitionHistory"] : nil)
+                                    end
         @extensions = attributes[:extensions] || attributes["extensions"]
       end
     end

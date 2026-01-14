@@ -47,8 +47,6 @@ module A2a
         get_text_parts(message.parts).join(delimiter)
       end
 
-      private
-
       def self.get_text_parts(parts)
         return [] if parts.nil?
 

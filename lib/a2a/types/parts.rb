@@ -87,7 +87,7 @@ module A2a
       def initialize(attributes = {})
         super
         root_data = attributes[:root] || attributes["root"] || attributes
-        
+
         # If root_data is already a PartBase instance or a Part instance, use it directly
         if root_data.is_a?(PartBase)
           @root = root_data

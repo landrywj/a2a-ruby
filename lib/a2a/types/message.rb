@@ -12,11 +12,11 @@ module A2a
         @kind = "message"
         @message_id = attributes[:message_id] || attributes["messageId"]
         @role = attributes[:role] || attributes["role"]
-      @parts = if attributes[:parts] || attributes["parts"]
-                 (attributes[:parts] || attributes["parts"]).map do |part|
-                   part.is_a?(Part) ? part : Part.new(part)
+        @parts = if attributes[:parts] || attributes["parts"]
+                   (attributes[:parts] || attributes["parts"]).map do |part|
+                     part.is_a?(Part) ? part : Part.new(part)
+                   end
                  end
-               end
         @task_id = attributes[:task_id] || attributes["taskId"]
         @context_id = attributes[:context_id] || attributes["contextId"]
         @reference_task_ids = attributes[:reference_task_ids] || attributes["referenceTaskIds"]

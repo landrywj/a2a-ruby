@@ -68,7 +68,7 @@ module A2a
         # Limit history to the most recent N messages
         # If history_length exceeds history size, we get all history
         limited_history = task.history[-history_length..] || task.history
-        
+
         # Build attributes hash, preserving all original attributes
         task_attrs = {
           id: task.id,
@@ -78,7 +78,7 @@ module A2a
         }
         task_attrs[:artifacts] = task.artifacts if task.artifacts
         task_attrs[:metadata] = task.metadata if task.metadata
-        
+
         Types::Task.new(task_attrs)
       end
     end

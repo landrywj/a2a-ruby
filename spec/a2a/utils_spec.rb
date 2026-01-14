@@ -478,7 +478,7 @@ RSpec.describe A2a::Utils::Parts do
         A2a::Types::Part.new(root: A2a::Types::TextPart.new(text: "World"))
       ]
       texts = A2a::Utils::Parts.get_text_parts(parts)
-      expect(texts).to eq(["Hello", "World"])
+      expect(texts).to eq(%w[Hello World])
     end
 
     it "ignores non-text parts" do

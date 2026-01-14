@@ -14,7 +14,7 @@ RSpec.describe A2a::Types::Message do
         parts: [part],
         task_id: "task-123",
         context_id: "ctx-123",
-        reference_task_ids: ["ref-1", "ref-2"],
+        reference_task_ids: %w[ref-1 ref-2],
         extensions: ["ext-1"],
         metadata: { "key" => "value" }
       )
@@ -25,7 +25,7 @@ RSpec.describe A2a::Types::Message do
       expect(message.parts.length).to eq(1)
       expect(message.task_id).to eq("task-123")
       expect(message.context_id).to eq("ctx-123")
-      expect(message.reference_task_ids).to eq(["ref-1", "ref-2"])
+      expect(message.reference_task_ids).to eq(%w[ref-1 ref-2])
       expect(message.extensions).to eq(["ext-1"])
       expect(message.metadata).to eq({ "key" => "value" })
     end

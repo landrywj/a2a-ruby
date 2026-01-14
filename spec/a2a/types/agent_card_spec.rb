@@ -11,7 +11,7 @@ RSpec.describe A2a::Types::AgentSkill do
         name: "Recipe Assistant",
         description: "Helps with cooking recipes",
         examples: ["I need a recipe for bread"],
-        tags: ["cooking", "recipes"],
+        tags: %w[cooking recipes],
         input_modes: ["text/plain"],
         output_modes: ["text/plain"],
         security: [{ "oauth" => ["read"] }]
@@ -21,7 +21,7 @@ RSpec.describe A2a::Types::AgentSkill do
       expect(skill.name).to eq("Recipe Assistant")
       expect(skill.description).to eq("Helps with cooking recipes")
       expect(skill.examples).to eq(["I need a recipe for bread"])
-      expect(skill.tags).to eq(["cooking", "recipes"])
+      expect(skill.tags).to eq(%w[cooking recipes])
       expect(skill.input_modes).to eq(["text/plain"])
       expect(skill.output_modes).to eq(["text/plain"])
       expect(skill.security).to eq([{ "oauth" => ["read"] }])
