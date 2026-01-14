@@ -85,11 +85,9 @@ module A2a
         @default_input_modes = attributes[:default_input_modes] || attributes["defaultInputModes"]
         @default_output_modes = attributes[:default_output_modes] || attributes["defaultOutputModes"]
         skills_data = attributes[:skills] || attributes["skills"]
-        @skills = if skills_data
-                    skills_data.map do |skill|
-                      skill.is_a?(AgentSkill) ? skill : AgentSkill.new(skill)
-                    end
-                  end
+        @skills = skills_data&.map do |skill|
+          skill.is_a?(AgentSkill) ? skill : AgentSkill.new(skill)
+        end
         capabilities_data = attributes[:capabilities] || attributes["capabilities"]
         @capabilities = if capabilities_data
                           capabilities_data.is_a?(AgentCapabilities) ? capabilities_data : AgentCapabilities.new(capabilities_data)
@@ -103,11 +101,9 @@ module A2a
         @documentation_url = attributes[:documentation_url] || attributes["documentationUrl"]
         @icon_url = attributes[:icon_url] || attributes["iconUrl"]
         interfaces_data = attributes[:additional_interfaces] || attributes["additionalInterfaces"]
-        @additional_interfaces = if interfaces_data
-                                   interfaces_data.map do |interface|
-                                     interface.is_a?(AgentInterface) ? interface : AgentInterface.new(interface)
-                                   end
-                                 end
+        @additional_interfaces = interfaces_data&.map do |interface|
+          interface.is_a?(AgentInterface) ? interface : AgentInterface.new(interface)
+        end
         @supports_authenticated_extended_card = attributes[:supports_authenticated_extended_card] || attributes["supportsAuthenticatedExtendedCard"]
         @signatures = attributes[:signatures] || attributes["signatures"]
       end

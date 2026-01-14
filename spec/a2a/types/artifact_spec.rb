@@ -7,7 +7,7 @@ RSpec.describe A2a::Types::Artifact do
   describe "#initialize" do
     it "creates an artifact with all attributes" do
       part = A2a::Types::Part.new(root: A2a::Types::TextPart.new(text: "Result"))
-      artifact = A2a::Types::Artifact.new(
+      artifact = described_class.new(
         artifact_id: "art-123",
         name: "Result Document",
         description: "The final result",
@@ -26,7 +26,7 @@ RSpec.describe A2a::Types::Artifact do
 
     it "creates an artifact with minimal attributes" do
       part = A2a::Types::Part.new(root: A2a::Types::TextPart.new(text: "Result"))
-      artifact = A2a::Types::Artifact.new(
+      artifact = described_class.new(
         artifact_id: "art-123",
         parts: [part]
       )
@@ -40,7 +40,7 @@ RSpec.describe A2a::Types::Artifact do
     it "handles multiple parts" do
       part1 = A2a::Types::Part.new(root: A2a::Types::TextPart.new(text: "Part 1"))
       part2 = A2a::Types::Part.new(root: A2a::Types::TextPart.new(text: "Part 2"))
-      artifact = A2a::Types::Artifact.new(
+      artifact = described_class.new(
         artifact_id: "art-123",
         parts: [part1, part2]
       )
@@ -48,7 +48,7 @@ RSpec.describe A2a::Types::Artifact do
     end
 
     it "creates Part objects from hashes" do
-      artifact = A2a::Types::Artifact.new(
+      artifact = described_class.new(
         artifact_id: "art-123",
         parts: [{ root: { kind: "text", text: "Result" } }]
       )
@@ -57,7 +57,7 @@ RSpec.describe A2a::Types::Artifact do
     end
 
     it "handles camelCase keys" do
-      artifact = A2a::Types::Artifact.new(
+      artifact = described_class.new(
         "artifactId" => "art-123",
         "name" => "Result",
         "parts" => [{ "root" => { "kind" => "text", "text" => "Result" } }]
@@ -70,7 +70,7 @@ RSpec.describe A2a::Types::Artifact do
   describe "#to_h" do
     it "serializes artifact to hash" do
       part = A2a::Types::Part.new(root: A2a::Types::TextPart.new(text: "Result"))
-      artifact = A2a::Types::Artifact.new(
+      artifact = described_class.new(
         artifact_id: "art-123",
         name: "Result",
         parts: [part]
@@ -87,7 +87,7 @@ RSpec.describe A2a::Types::Artifact do
   describe "#to_json" do
     it "serializes artifact to JSON" do
       part = A2a::Types::Part.new(root: A2a::Types::TextPart.new(text: "Result"))
-      artifact = A2a::Types::Artifact.new(
+      artifact = described_class.new(
         artifact_id: "art-123",
         name: "Result",
         parts: [part]

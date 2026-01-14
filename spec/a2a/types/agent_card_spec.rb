@@ -6,7 +6,7 @@ require "a2a/types"
 RSpec.describe A2a::Types::AgentSkill do
   describe "#initialize" do
     it "creates an agent skill with all attributes" do
-      skill = A2a::Types::AgentSkill.new(
+      skill = described_class.new(
         id: "skill-1",
         name: "Recipe Assistant",
         description: "Helps with cooking recipes",
@@ -28,7 +28,7 @@ RSpec.describe A2a::Types::AgentSkill do
     end
 
     it "handles camelCase keys" do
-      skill = A2a::Types::AgentSkill.new(
+      skill = described_class.new(
         "id" => "skill-1",
         "name" => "Skill",
         "inputModes" => ["text/plain"],
@@ -44,7 +44,7 @@ end
 RSpec.describe A2a::Types::AgentInterface do
   describe "#initialize" do
     it "creates an agent interface" do
-      interface = A2a::Types::AgentInterface.new(
+      interface = described_class.new(
         url: "https://api.example.com/a2a/v1",
         transport: A2a::Types::TransportProtocol::JSONRPC
       )
@@ -58,7 +58,7 @@ end
 RSpec.describe A2a::Types::AgentProvider do
   describe "#initialize" do
     it "creates an agent provider" do
-      provider = A2a::Types::AgentProvider.new(
+      provider = described_class.new(
         organization: "Example Corp",
         url: "https://example.com"
       )
@@ -72,7 +72,7 @@ end
 RSpec.describe A2a::Types::AgentCapabilities do
   describe "#initialize" do
     it "creates agent capabilities" do
-      capabilities = A2a::Types::AgentCapabilities.new(
+      capabilities = described_class.new(
         push_notifications: true,
         streaming: true,
         state_transition_history: false,
@@ -81,12 +81,12 @@ RSpec.describe A2a::Types::AgentCapabilities do
 
       expect(capabilities.push_notifications).to be true
       expect(capabilities.streaming).to be true
-      expect(capabilities.state_transition_history).to eq(false)
+      expect(capabilities.state_transition_history).to be(false)
       expect(capabilities.extensions).to eq([])
     end
 
     it "handles camelCase keys" do
-      capabilities = A2a::Types::AgentCapabilities.new(
+      capabilities = described_class.new(
         "pushNotifications" => true,
         "streaming" => false,
         "stateTransitionHistory" => true
@@ -120,7 +120,7 @@ RSpec.describe A2a::Types::AgentCard do
         transport: A2a::Types::TransportProtocol::JSONRPC
       )
 
-      card = A2a::Types::AgentCard.new(
+      card = described_class.new(
         name: "Recipe Agent",
         description: "An agent that helps with recipes",
         version: "1.0.0",
@@ -159,7 +159,7 @@ RSpec.describe A2a::Types::AgentCard do
         description: "Description",
         tags: ["tag"]
       )
-      card = A2a::Types::AgentCard.new(
+      card = described_class.new(
         name: "Agent",
         description: "Description",
         version: "1.0.0",
@@ -180,7 +180,7 @@ RSpec.describe A2a::Types::AgentCard do
         description: "Description",
         tags: ["tag"]
       )
-      card = A2a::Types::AgentCard.new(
+      card = described_class.new(
         "name" => "Agent",
         "description" => "Description",
         "version" => "1.0.0",
@@ -198,7 +198,7 @@ RSpec.describe A2a::Types::AgentCard do
     end
 
     it "creates nested objects from hashes" do
-      card = A2a::Types::AgentCard.new(
+      card = described_class.new(
         name: "Agent",
         description: "Description",
         version: "1.0.0",
@@ -230,7 +230,7 @@ RSpec.describe A2a::Types::AgentCard do
         description: "Description",
         tags: ["tag"]
       )
-      card = A2a::Types::AgentCard.new(
+      card = described_class.new(
         name: "Agent",
         description: "Description",
         version: "1.0.0",

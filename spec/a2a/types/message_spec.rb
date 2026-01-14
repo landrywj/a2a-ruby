@@ -8,7 +8,7 @@ RSpec.describe A2a::Types::Message do
     it "creates a message with all attributes" do
       text_part = A2a::Types::TextPart.new(text: "Hello")
       part = A2a::Types::Part.new(root: text_part)
-      message = A2a::Types::Message.new(
+      message = described_class.new(
         role: A2a::Types::Role::USER,
         message_id: "msg-123",
         parts: [part],
@@ -33,7 +33,7 @@ RSpec.describe A2a::Types::Message do
     it "creates a message with minimal attributes" do
       text_part = A2a::Types::TextPart.new(text: "Hello")
       part = A2a::Types::Part.new(root: text_part)
-      message = A2a::Types::Message.new(
+      message = described_class.new(
         role: A2a::Types::Role::AGENT,
         message_id: "msg-123",
         parts: [part]
@@ -48,7 +48,7 @@ RSpec.describe A2a::Types::Message do
     it "handles camelCase keys from JSON" do
       text_part = A2a::Types::TextPart.new(text: "Hello")
       part = A2a::Types::Part.new(root: text_part)
-      message = A2a::Types::Message.new(
+      message = described_class.new(
         "role" => "user",
         "messageId" => "msg-123",
         "parts" => [part],
@@ -65,7 +65,7 @@ RSpec.describe A2a::Types::Message do
     it "handles Part objects directly" do
       text_part = A2a::Types::TextPart.new(text: "Hello")
       part = A2a::Types::Part.new(root: text_part)
-      message = A2a::Types::Message.new(
+      message = described_class.new(
         role: A2a::Types::Role::USER,
         message_id: "msg-123",
         parts: [part]
@@ -74,7 +74,7 @@ RSpec.describe A2a::Types::Message do
     end
 
     it "creates Part objects from hashes" do
-      message = A2a::Types::Message.new(
+      message = described_class.new(
         role: A2a::Types::Role::USER,
         message_id: "msg-123",
         parts: [{ root: { kind: "text", text: "Hello" } }]
@@ -86,7 +86,7 @@ RSpec.describe A2a::Types::Message do
     it "handles multiple parts" do
       part1 = A2a::Types::Part.new(root: A2a::Types::TextPart.new(text: "Hello"))
       part2 = A2a::Types::Part.new(root: A2a::Types::TextPart.new(text: "World"))
-      message = A2a::Types::Message.new(
+      message = described_class.new(
         role: A2a::Types::Role::USER,
         message_id: "msg-123",
         parts: [part1, part2]
@@ -101,7 +101,7 @@ RSpec.describe A2a::Types::Message do
     it "serializes message to hash with camelCase keys" do
       text_part = A2a::Types::TextPart.new(text: "Hello")
       part = A2a::Types::Part.new(root: text_part)
-      message = A2a::Types::Message.new(
+      message = described_class.new(
         role: A2a::Types::Role::USER,
         message_id: "msg-123",
         parts: [part],
@@ -124,7 +124,7 @@ RSpec.describe A2a::Types::Message do
     it "serializes message to JSON" do
       text_part = A2a::Types::TextPart.new(text: "Hello")
       part = A2a::Types::Part.new(root: text_part)
-      message = A2a::Types::Message.new(
+      message = described_class.new(
         role: A2a::Types::Role::USER,
         message_id: "msg-123",
         parts: [part]
@@ -145,7 +145,7 @@ RSpec.describe A2a::Types::Message do
         "messageId" => "msg-123",
         "parts" => [{ "kind" => "text", "text" => "Hello" }]
       }
-      message = A2a::Types::Message.from_h(hash)
+      message = described_class.from_h(hash)
       expect(message.role).to eq("user")
       expect(message.message_id).to eq("msg-123")
       expect(message.parts.length).to eq(1)
@@ -155,7 +155,7 @@ RSpec.describe A2a::Types::Message do
   describe ".from_json" do
     it "creates message from JSON string" do
       json = '{"kind":"message","role":"user","messageId":"msg-123","parts":[{"kind":"text","text":"Hello"}]}'
-      message = A2a::Types::Message.from_json(json)
+      message = described_class.from_json(json)
       expect(message.role).to eq("user")
       expect(message.message_id).to eq("msg-123")
       expect(message.parts.first.root.text).to eq("Hello")

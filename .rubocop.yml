@@ -1,8 +1,90 @@
+require:
+  - rubocop-rspec
+
 AllCops:
   TargetRubyVersion: 3.1
+  NewCops: enable
+
+plugins:
+  - rubocop-rake
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
 Style/StringLiteralsInInterpolation:
   EnforcedStyle: double_quotes
+
+# Rake configuration
+Rake/Desc:
+  Enabled: true
+
+# RSpec configuration
+RSpec/ExampleLength:
+  Max: 50
+  Exclude:
+    - 'spec/**/*_spec.rb'
+
+RSpec/MultipleExpectations:
+  Max: 10
+  Exclude:
+    - 'spec/**/*_spec.rb'
+
+RSpec/NestedGroups:
+  Max: 4
+
+RSpec/DescribeClass:
+  Enabled: true
+
+RSpec/ExampleWording:
+  Enabled: true
+
+RSpec/MessageSpies:
+  Enabled: true
+
+# Disable Capybara cops (loaded via rubocop-rspec but we don't use Capybara)
+Capybara/RSpec/PredicateMatcher:
+  Enabled: false
+Capybara/CurrentPathExpectation:
+  Enabled: false
+Capybara/MatchStyle:
+  Enabled: false
+Capybara/NegationMatcher:
+  Enabled: false
+Capybara/SpecificActions:
+  Enabled: false
+Capybara/SpecificFinders:
+  Enabled: false
+Capybara/SpecificMatcher:
+  Enabled: false
+Capybara/VisibilityMatcher:
+  Enabled: false
+
+# Disable FactoryBot cops (loaded via rubocop-rspec but we don't use FactoryBot)
+FactoryBot/AttributeDefinedStatically:
+  Enabled: false
+FactoryBot/ConsistentParenthesesStyle:
+  Enabled: false
+FactoryBot/CreateList:
+  Enabled: false
+FactoryBot/FactoryClassName:
+  Enabled: false
+FactoryBot/FactoryNameStyle:
+  Enabled: false
+FactoryBot/SyntaxMethods:
+  Enabled: false
+
+# Disable RSpec Rails cops (we're not using Rails)
+RSpecRails/AvoidSetupHook:
+  Enabled: false
+RSpecRails/HaveHttpStatus:
+  Enabled: false
+RSpecRails/HttpStatus:
+  Enabled: false
+RSpecRails/InferredSpecType:
+  Enabled: false
+RSpecRails/MinitestAssertions:
+  Enabled: false
+RSpecRails/NegationBeValid:
+  Enabled: false
+RSpecRails/TravelAround:
+  Enabled: false

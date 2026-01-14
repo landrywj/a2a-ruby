@@ -34,17 +34,13 @@ module A2a
                     status_data.is_a?(TaskStatus) ? status_data : TaskStatus.new(status_data)
                   end
         history_data = attributes[:history] || attributes["history"]
-        @history = if history_data
-                     history_data.map do |msg|
-                       msg.is_a?(Message) ? msg : Message.new(msg)
-                     end
-                   end
+        @history = history_data&.map do |msg|
+          msg.is_a?(Message) ? msg : Message.new(msg)
+        end
         artifacts_data = attributes[:artifacts] || attributes["artifacts"]
-        @artifacts = if artifacts_data
-                       artifacts_data.map do |artifact|
-                         artifact.is_a?(Artifact) ? artifact : Artifact.new(artifact)
-                       end
-                     end
+        @artifacts = artifacts_data&.map do |artifact|
+          artifact.is_a?(Artifact) ? artifact : Artifact.new(artifact)
+        end
       end
     end
   end

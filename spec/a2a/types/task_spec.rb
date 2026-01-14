@@ -6,7 +6,7 @@ require "a2a/types"
 RSpec.describe A2a::Types::TaskStatus do
   describe "#initialize" do
     it "creates a task status with state" do
-      status = A2a::Types::TaskStatus.new(state: A2a::Types::TaskState::SUBMITTED)
+      status = described_class.new(state: A2a::Types::TaskState::SUBMITTED)
       expect(status.state).to eq("submitted")
     end
 
@@ -16,7 +16,7 @@ RSpec.describe A2a::Types::TaskStatus do
         message_id: "msg-123",
         parts: [A2a::Types::Part.new(root: A2a::Types::TextPart.new(text: "Processing"))]
       )
-      status = A2a::Types::TaskStatus.new(
+      status = described_class.new(
         state: A2a::Types::TaskState::WORKING,
         message: message
       )
@@ -27,7 +27,7 @@ RSpec.describe A2a::Types::TaskStatus do
 
     it "creates a task status with timestamp" do
       timestamp = "2023-10-27T10:00:00Z"
-      status = A2a::Types::TaskStatus.new(
+      status = described_class.new(
         state: A2a::Types::TaskState::COMPLETED,
         timestamp: timestamp
       )
@@ -36,7 +36,7 @@ RSpec.describe A2a::Types::TaskStatus do
     end
 
     it "handles message from hash" do
-      status = A2a::Types::TaskStatus.new(
+      status = described_class.new(
         state: A2a::Types::TaskState::WORKING,
         message: {
           "role" => "agent",
@@ -49,7 +49,7 @@ RSpec.describe A2a::Types::TaskStatus do
     end
 
     it "handles camelCase keys" do
-      status = A2a::Types::TaskStatus.new("state" => "completed", "timestamp" => "2023-10-27T10:00:00Z")
+      status = described_class.new("state" => "completed", "timestamp" => "2023-10-27T10:00:00Z")
       expect(status.state).to eq("completed")
       expect(status.timestamp).to eq("2023-10-27T10:00:00Z")
     end
@@ -57,7 +57,7 @@ RSpec.describe A2a::Types::TaskStatus do
 
   describe "#to_h" do
     it "serializes to hash" do
-      status = A2a::Types::TaskStatus.new(
+      status = described_class.new(
         state: A2a::Types::TaskState::COMPLETED,
         timestamp: "2023-10-27T10:00:00Z"
       )
@@ -82,7 +82,7 @@ RSpec.describe A2a::Types::Task do
         parts: [A2a::Types::Part.new(root: A2a::Types::TextPart.new(text: "Result"))]
       )
 
-      task = A2a::Types::Task.new(
+      task = described_class.new(
         id: "task-123",
         context_id: "ctx-123",
         status: status,
@@ -102,7 +102,7 @@ RSpec.describe A2a::Types::Task do
 
     it "creates a task with minimal attributes" do
       status = A2a::Types::TaskStatus.new(state: A2a::Types::TaskState::SUBMITTED)
-      task = A2a::Types::Task.new(
+      task = described_class.new(
         id: "task-123",
         context_id: "ctx-123",
         status: status
@@ -116,7 +116,7 @@ RSpec.describe A2a::Types::Task do
 
     it "handles TaskStatus object directly" do
       status = A2a::Types::TaskStatus.new(state: A2a::Types::TaskState::COMPLETED)
-      task = A2a::Types::Task.new(
+      task = described_class.new(
         id: "task-123",
         context_id: "ctx-123",
         status: status
@@ -126,7 +126,7 @@ RSpec.describe A2a::Types::Task do
     end
 
     it "handles TaskStatus from hash" do
-      task = A2a::Types::Task.new(
+      task = described_class.new(
         id: "task-123",
         context_id: "ctx-123",
         status: { "state" => "completed" }
@@ -142,7 +142,7 @@ RSpec.describe A2a::Types::Task do
         parts: [A2a::Types::Part.new(root: A2a::Types::TextPart.new(text: "Hello"))]
       )
       status = A2a::Types::TaskStatus.new(state: A2a::Types::TaskState::SUBMITTED)
-      task = A2a::Types::Task.new(
+      task = described_class.new(
         id: "task-123",
         context_id: "ctx-123",
         status: status,
@@ -153,7 +153,7 @@ RSpec.describe A2a::Types::Task do
 
     it "creates Message objects from hashes in history" do
       status = A2a::Types::TaskStatus.new(state: A2a::Types::TaskState::SUBMITTED)
-      task = A2a::Types::Task.new(
+      task = described_class.new(
         id: "task-123",
         context_id: "ctx-123",
         status: status,
@@ -179,7 +179,7 @@ RSpec.describe A2a::Types::Task do
         parts: [A2a::Types::Part.new(root: A2a::Types::TextPart.new(text: "Hi"))]
       )
       status = A2a::Types::TaskStatus.new(state: A2a::Types::TaskState::WORKING)
-      task = A2a::Types::Task.new(
+      task = described_class.new(
         id: "task-123",
         context_id: "ctx-123",
         status: status,
@@ -196,7 +196,7 @@ RSpec.describe A2a::Types::Task do
         parts: [A2a::Types::Part.new(root: A2a::Types::TextPart.new(text: "Result"))]
       )
       status = A2a::Types::TaskStatus.new(state: A2a::Types::TaskState::COMPLETED)
-      task = A2a::Types::Task.new(
+      task = described_class.new(
         id: "task-123",
         context_id: "ctx-123",
         status: status,
@@ -208,7 +208,7 @@ RSpec.describe A2a::Types::Task do
 
     it "creates Artifact objects from hashes" do
       status = A2a::Types::TaskStatus.new(state: A2a::Types::TaskState::COMPLETED)
-      task = A2a::Types::Task.new(
+      task = described_class.new(
         id: "task-123",
         context_id: "ctx-123",
         status: status,
@@ -223,7 +223,7 @@ RSpec.describe A2a::Types::Task do
 
     it "handles camelCase keys" do
       status = A2a::Types::TaskStatus.new(state: A2a::Types::TaskState::SUBMITTED)
-      task = A2a::Types::Task.new(
+      task = described_class.new(
         "id" => "task-123",
         "contextId" => "ctx-123",
         "status" => status
@@ -236,7 +236,7 @@ RSpec.describe A2a::Types::Task do
   describe "#to_h" do
     it "serializes task to hash" do
       status = A2a::Types::TaskStatus.new(state: A2a::Types::TaskState::COMPLETED)
-      task = A2a::Types::Task.new(
+      task = described_class.new(
         id: "task-123",
         context_id: "ctx-123",
         status: status
@@ -257,7 +257,7 @@ RSpec.describe A2a::Types::Task do
         parts: [A2a::Types::Part.new(root: A2a::Types::TextPart.new(text: "Hello"))]
       )
       status = A2a::Types::TaskStatus.new(state: A2a::Types::TaskState::SUBMITTED)
-      task = A2a::Types::Task.new(
+      task = described_class.new(
         id: "task-123",
         context_id: "ctx-123",
         status: status,
@@ -272,7 +272,7 @@ RSpec.describe A2a::Types::Task do
   describe "#to_json" do
     it "serializes task to JSON" do
       status = A2a::Types::TaskStatus.new(state: A2a::Types::TaskState::COMPLETED)
-      task = A2a::Types::Task.new(
+      task = described_class.new(
         id: "task-123",
         context_id: "ctx-123",
         status: status
