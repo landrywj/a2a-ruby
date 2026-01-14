@@ -182,8 +182,15 @@ module A2a
         if supported.include?(Types::TransportProtocol::HTTP_JSON)
           register(
             Types::TransportProtocol::HTTP_JSON,
-            lambda do |_card, _url, _config, _interceptors|
-              raise NotImplementedError, "REST transport not yet implemented. This will be implemented in Phase 5."
+            lambda do |card, url, config, interceptors|
+              http_client = config.httpx_client || Faraday.new
+              Transports::REST.new(
+                http_client: http_client,
+                agent_card: card,
+                url: url,
+                interceptors: interceptors || [],
+                extensions: config.extensions
+              )
             end
           )
         end

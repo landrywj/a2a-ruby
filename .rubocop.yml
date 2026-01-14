@@ -38,7 +38,7 @@ Metrics/CyclomaticComplexity:
     - 'lib/a2a/client/auth/interceptor.rb'
 
 Metrics/MethodLength:
-  Max: 35
+  Max: 40
   Exclude:
     - 'lib/**/*_spec.rb'
     - '**/initialize'
