@@ -23,7 +23,7 @@ module A2a
         # @param agent_card [Types::AgentCard, nil] The AgentCard associated with the client
         # @param context [CallContext, nil] The CallContext for this specific call
         # @return [Array<Hash, Hash>] A tuple containing the (potentially modified) request_payload and http_kwargs
-        def intercept(method_name, request_payload, http_kwargs, agent_card = nil, context = nil)
+        def intercept(_method_name, request_payload, http_kwargs, agent_card = nil, context = nil)
           return [request_payload, http_kwargs] unless agent_card
           return [request_payload, http_kwargs] unless agent_card.security
           return [request_payload, http_kwargs] unless agent_card.security_schemes
@@ -33,7 +33,7 @@ module A2a
           agent_card.security.each do |requirement|
             # Handle both string and symbol keys
             requirement = requirement.transform_keys(&:to_s) if requirement.is_a?(Hash)
-            requirement.each do |scheme_name, _scheme_list|
+            requirement.each_key do |scheme_name|
               scheme_name = scheme_name.to_s
               credential = @credential_service.get_credentials(scheme_name, context)
               next unless credential
@@ -69,13 +69,13 @@ module A2a
               end
 
               # Case 2: API Key in Header
-              if scheme_def.is_a?(Types::APIKeySecurityScheme) && scheme_def.in_ == Types::In::HEADER
-                headers[scheme_def.name] = credential
-                http_kwargs[:headers] = headers
-                return [request_payload, http_kwargs]
-              end
+              next unless scheme_def.is_a?(Types::APIKeySecurityScheme) && scheme_def.in_ == Types::In::HEADER
 
-              # Note: Other cases like API keys in query/cookie are not handled and will be skipped.
+              headers[scheme_def.name] = credential
+              http_kwargs[:headers] = headers
+              return [request_payload, http_kwargs]
+
+              # NOTE: Other cases like API keys in query/cookie are not handled and will be skipped.
             end
           end
 

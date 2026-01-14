@@ -101,11 +101,11 @@ module A2a
 
         # Find existing artifact by its id
         task.artifacts.each_with_index do |art, i|
-          if art.artifact_id == artifact_id
-            existing_artifact = art
-            existing_artifact_list_index = i
-            break
-          end
+          next unless art.artifact_id == artifact_id
+
+          existing_artifact = art
+          existing_artifact_list_index = i
+          break
         end
 
         if !append_parts

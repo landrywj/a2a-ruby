@@ -76,7 +76,7 @@ RSpec.describe A2a::Client::Auth::Interceptor do
         request_payload = { "method" => "message/send" }
         http_kwargs = { headers: {} }
 
-        new_payload, new_kwargs = interceptor.intercept(
+        _, new_kwargs = interceptor.intercept(
           "message/send",
           request_payload,
           http_kwargs,
@@ -111,7 +111,7 @@ RSpec.describe A2a::Client::Auth::Interceptor do
         request_payload = { "method" => "message/send" }
         http_kwargs = { headers: {} }
 
-        new_payload, new_kwargs = interceptor.intercept(
+        _, new_kwargs = interceptor.intercept(
           "message/send",
           request_payload,
           http_kwargs,
@@ -152,7 +152,7 @@ RSpec.describe A2a::Client::Auth::Interceptor do
         request_payload = { "method" => "message/send" }
         http_kwargs = { headers: {} }
 
-        new_payload, new_kwargs = interceptor.intercept(
+        _, new_kwargs = interceptor.intercept(
           "message/send",
           request_payload,
           http_kwargs,
@@ -187,7 +187,7 @@ RSpec.describe A2a::Client::Auth::Interceptor do
         request_payload = { "method" => "message/send" }
         http_kwargs = { headers: {} }
 
-        new_payload, new_kwargs = interceptor.intercept(
+        _, new_kwargs = interceptor.intercept(
           "message/send",
           request_payload,
           http_kwargs,
@@ -220,7 +220,7 @@ RSpec.describe A2a::Client::Auth::Interceptor do
         request_payload = { "method" => "message/send" }
         http_kwargs = { headers: {} }
 
-        new_payload, new_kwargs = interceptor.intercept(
+        _, new_kwargs = interceptor.intercept(
           "message/send",
           request_payload,
           http_kwargs,
@@ -249,7 +249,7 @@ RSpec.describe A2a::Client::Auth::Interceptor do
         request_payload = { "method" => "message/send" }
         http_kwargs = { headers: {} }
 
-        new_payload, new_kwargs = interceptor.intercept(
+        _, new_kwargs = interceptor.intercept(
           "message/send",
           request_payload,
           http_kwargs,

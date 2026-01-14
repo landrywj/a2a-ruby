@@ -96,7 +96,7 @@ RSpec.describe A2a::Client::Transports::JSONRPC do
         "jsonrpc" => "2.0",
         "id" => "req-123",
         "error" => {
-          "code" => -32601,
+          "code" => -32_601,
           "message" => "Method not found"
         }
       }

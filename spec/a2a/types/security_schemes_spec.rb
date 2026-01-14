@@ -168,9 +168,9 @@ RSpec.describe A2a::Types::SecurityScheme do
     end
 
     it "raises error for unknown type" do
-      expect {
+      expect do
         described_class.new("type" => "unknown")
-      }.to raise_error(ArgumentError, /Unknown security scheme type/)
+      end.to raise_error(ArgumentError, /Unknown security scheme type/)
     end
   end
 end

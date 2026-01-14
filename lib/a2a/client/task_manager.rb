@@ -36,7 +36,7 @@ module A2a
       # @raise [InvalidStateError] If there is no current known Task
       def get_task_or_raise
         task = get_task
-        raise InvalidStateError.new("no current Task") unless task
+        raise InvalidStateError, "no current Task" unless task
 
         task
       end
@@ -48,7 +48,7 @@ module A2a
       # @raise [InvalidArgsError] If the task ID in the event conflicts with the TaskManager's ID
       def save_task_event(event)
         if event.is_a?(Types::Task)
-          raise InvalidArgsError.new("Task is already set, create new manager for new tasks.") if @current_task
+          raise InvalidArgsError, "Task is already set, create new manager for new tasks." if @current_task
 
           save_task(event)
           return event
@@ -59,13 +59,11 @@ module A2a
         @context_id ||= event.context_id
 
         task = @current_task
-        unless task
-          task = Types::Task.new(
-            status: Types::TaskStatus.new(state: Types::TaskState::UNKNOWN),
-            id: task_id_from_event,
-            context_id: @context_id || ""
-          )
-        end
+        task ||= Types::Task.new(
+          status: Types::TaskStatus.new(state: Types::TaskState::UNKNOWN),
+          id: task_id_from_event,
+          context_id: @context_id || ""
+        )
 
         if event.is_a?(Types::TaskStatusUpdateEvent)
           if event.status.message
@@ -90,9 +88,7 @@ module A2a
       # @param event [Object] The event object received from the agent
       # @return [Object] The same event object that was processed
       def process(event)
-        if event.is_a?(Types::Task) || event.is_a?(Types::TaskStatusUpdateEvent) || event.is_a?(Types::TaskArtifactUpdateEvent)
-          save_task_event(event)
-        end
+        save_task_event(event) if event.is_a?(Types::Task) || event.is_a?(Types::TaskStatusUpdateEvent) || event.is_a?(Types::TaskArtifactUpdateEvent)
 
         event
       end
