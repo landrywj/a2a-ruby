@@ -42,6 +42,3 @@ jobs:
           style: 'concise'
           include-full-files: 'false'
           exclude-files: '*.md,*.txt,*.yml,*.yaml,*.gemspec,Gemfile*'
-          path-filter: |
-            lib/**
-            spec/**
