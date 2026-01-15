@@ -167,10 +167,13 @@ RSpec/MessageSpies:
 
 RSpec/MultipleMemoizedHelpers:
   Max: 6
+  Exclude:
+    - 'spec/a2a/client/transports/grpc_spec.rb'
 
 RSpec/VerifiedDoubles:
   Exclude:
     - 'spec/a2a/client/transports/jsonrpc_spec.rb'
+    - 'spec/a2a/client/transports/grpc_spec.rb'
 
 # Disable Capybara cops (loaded via rubocop-rspec but we don't use Capybara)
 Capybara/RSpec/PredicateMatcher:

@@ -107,8 +107,7 @@ module A2a
       end
 
       class GetAgentCardRequest
-        def initialize(attrs = {})
-        end
+        def initialize(attrs = {}); end
       end
 
       class AgentCard
@@ -149,6 +148,7 @@ allow_const.module_eval do
   alias_method :original_require, :require
   def require(name)
     return true if name == "grpc"
+
     original_require(name)
   end
 end
@@ -192,7 +192,7 @@ RSpec.describe A2a::Client::Transports::Grpc do
 
     it "initializes with interceptors and extensions" do
       interceptors = [double("Interceptor")]
-      extensions = ["ext1", "ext2"]
+      extensions = %w[ext1 ext2]
       transport = described_class.new(
         channel: mock_channel,
         agent_card: agent_card,
@@ -214,7 +214,7 @@ RSpec.describe A2a::Client::Transports::Grpc do
   describe ".create" do
     let(:config) do
       A2a::Client::Config.new(
-        grpc_channel_factory: ->(url) { mock_channel },
+        grpc_channel_factory: ->(_url) { mock_channel },
         extensions: ["ext1"]
       )
     end
@@ -270,8 +270,7 @@ RSpec.describe A2a::Client::Transports::Grpc do
 
     before do
       allow(A2a::Utils::ToProto).to receive(:message_send_request).and_return(double("Request"))
-      allow(transport).to receive(:get_grpc_metadata).and_return({})
-      allow(transport).to receive(:apply_interceptors).and_return({})
+      allow(transport).to receive_messages(get_grpc_metadata: {}, apply_interceptors: {})
       allow(mock_stub).to receive(:send_message).and_return(response_pb)
       allow(A2a::Utils::FromProto).to receive(:task).and_return(
         A2a::Types::Task.new(id: "task-123", context_id: "ctx-123")
@@ -315,8 +314,7 @@ RSpec.describe A2a::Client::Transports::Grpc do
 
     before do
       allow(transport).to receive(:get_proto_class).with("GetTaskRequest").and_return(A2a::Grpc::A2aPb2::GetTaskRequest)
-      allow(transport).to receive(:get_grpc_metadata).and_return({})
-      allow(transport).to receive(:apply_interceptors).and_return({})
+      allow(transport).to receive_messages(get_grpc_metadata: {}, apply_interceptors: {})
       allow(mock_stub).to receive(:get_task).and_return(task_pb)
       allow(A2a::Utils::FromProto).to receive(:task).and_return(
         A2a::Types::Task.new(id: "task-123", context_id: "ctx-123")
@@ -347,8 +345,7 @@ RSpec.describe A2a::Client::Transports::Grpc do
 
     before do
       allow(transport).to receive(:get_proto_class).with("CancelTaskRequest").and_return(A2a::Grpc::A2aPb2::CancelTaskRequest)
-      allow(transport).to receive(:get_grpc_metadata).and_return({})
-      allow(transport).to receive(:apply_interceptors).and_return({})
+      allow(transport).to receive_messages(get_grpc_metadata: {}, apply_interceptors: {})
       allow(mock_stub).to receive(:cancel_task).and_return(task_pb)
       allow(A2a::Utils::FromProto).to receive(:task).and_return(
         A2a::Types::Task.new(id: "task-123", context_id: "ctx-123")
@@ -378,8 +375,7 @@ RSpec.describe A2a::Client::Transports::Grpc do
 
     before do
       allow(transport).to receive(:get_proto_class).with("GetAgentCardRequest").and_return(A2a::Grpc::A2aPb2::GetAgentCardRequest)
-      allow(transport).to receive(:get_grpc_metadata).and_return({})
-      allow(transport).to receive(:apply_interceptors).and_return({})
+      allow(transport).to receive_messages(get_grpc_metadata: {}, apply_interceptors: {})
       allow(mock_stub).to receive(:get_agent_card).and_return(card_pb)
       allow(A2a::Utils::FromProto).to receive(:agent_card).and_return(agent_card)
     end
