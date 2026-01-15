@@ -111,5 +111,28 @@ module A2a
         @credentials = attributes[:credentials] || attributes["credentials"]
       end
     end
+
+    # Defines parameters for listing push notification configurations.
+    class ListTaskPushNotificationConfigParams < BaseModel
+      attr_accessor :id, :metadata
+
+      def initialize(attributes = {})
+        super
+        @id = attributes[:id] || attributes["id"]
+        @metadata = attributes[:metadata] || attributes["metadata"]
+      end
+    end
+
+    # Defines parameters for deleting a push notification configuration.
+    class DeleteTaskPushNotificationConfigParams < BaseModel
+      attr_accessor :id, :push_notification_config_id, :metadata
+
+      def initialize(attributes = {})
+        super
+        @id = attributes[:id] || attributes["id"]
+        @push_notification_config_id = attributes[:push_notification_config_id] || attributes["pushNotificationConfigId"]
+        @metadata = attributes[:metadata] || attributes["metadata"]
+      end
+    end
   end
 end

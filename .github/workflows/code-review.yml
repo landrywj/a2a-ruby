@@ -16,7 +16,7 @@ on:
   pull_request_target:
     branches:
       - main
-    types: [opened, reopened, ready_for_review]
+    types: [opened, reopened, ready_for_review, synchronize]
 
 permissions:
   contents: read
@@ -39,7 +39,7 @@ jobs:
             const marker = "<!-- codex-review-request -->";
             const body = [
               marker,
-              "/codex review",
+              "@codex review",
               "",
               "(Automated request from GitHub Actions.)",
             ].join("\n");

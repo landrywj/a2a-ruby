@@ -59,12 +59,20 @@ Metrics/ClassLength:
   Exclude:
     - 'lib/a2a/client/base_client.rb'
     - 'lib/a2a/client/transports/jsonrpc.rb'
+    - 'lib/a2a/server/request_handlers/jsonrpc_handler.rb'
+    - 'lib/a2a/server/request_handlers/rest_handler.rb'
+    - 'lib/a2a/server/request_handlers/default_request_handler.rb'
 
 Metrics/BlockLength:
   Max: 25
   Exclude:
     - 'lib/a2a/client/auth/interceptor.rb'
     - 'spec/**/*'
+
+Metrics/ParameterLists:
+  Max: 5
+  Exclude:
+    - 'lib/a2a/server/request_handlers/default_request_handler.rb'
 
 # Layout configuration
 Layout/LineLength:
@@ -109,6 +117,7 @@ Lint/MissingSuper:
     - 'lib/a2a/client/auth/in_memory_credential_store.rb'
     - 'lib/a2a/client/auth/interceptor.rb'
     - 'lib/a2a/client/transports/jsonrpc.rb'
+    - 'lib/a2a/server/request_handlers/default_request_handler.rb'
 
 # RSpec style configuration - relaxed
 RSpec/FilePath:
