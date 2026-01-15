@@ -197,12 +197,22 @@ module A2a
 
         return unless supported.include?(Types::TransportProtocol::GRPC)
 
-        register(
-          Types::TransportProtocol::GRPC,
-          lambda do |_card, _url, _config, _interceptors|
-            raise NotImplementedError, "gRPC transport not yet implemented. This will be implemented in Phase 8."
-          end
-        )
+        begin
+          require_relative "transports/grpc"
+          register(
+            Types::TransportProtocol::GRPC,
+            lambda do |card, url, config, interceptors|
+              Transports::Grpc.create(
+                card: card,
+                url: url,
+                config: config,
+                interceptors: interceptors || []
+              )
+            end
+          )
+        rescue LoadError => e
+          raise LoadError, "gRPC transport requires grpc gem and proto files. #{e.message}"
+        end
       end
 
       def select_transport(card)

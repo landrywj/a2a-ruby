@@ -37,6 +37,10 @@ Gem::Specification.new do |spec|
   # Core dependencies
   spec.add_dependency "faraday", "~> 2.0"
 
+  # Optional gRPC support (install with: gem install a2a --with-grpc)
+  # Note: gRPC requires protobuf files to be generated from the A2A protocol specification
+  # See README for instructions on generating proto files
+
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
 end
