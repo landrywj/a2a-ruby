@@ -1,17 +1,15 @@
 # frozen_string_literal: true
 
-# Rails integration module for A2A SDK
-#
-# This module provides Rails-specific integrations:
-# - ActiveJob for background processing
-# - ActionCable for real-time streaming
-#
-# Note: These classes require Rails to be loaded. They are conditionally
-# required when Rails is available.
-
 module A2a
+  # Rails integration module for A2A SDK.
+  #
+  # This module provides Rails-specific integrations:
+  # - ActiveJob for background processing
+  # - ActionCable for real-time streaming
+  #
+  # Note: These classes require Rails to be loaded. They are conditionally
+  # required when Rails is available.
   module Rails
-    # Rails integration module
   end
 end
 

@@ -7,9 +7,7 @@ require_relative "a2a/client"
 require_relative "a2a/server"
 
 # Conditionally load Rails integration if Rails is available
-if defined?(Rails) || defined?(ActiveJob) || defined?(ActionCable)
-  require_relative "a2a/rails"
-end
+require_relative "a2a/rails" if defined?(Rails) || defined?(ActiveJob) || defined?(ActionCable)
 
 module A2a
   class Error < StandardError; end

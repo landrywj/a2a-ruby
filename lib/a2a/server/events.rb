@@ -7,8 +7,12 @@ require_relative "events/in_memory_queue_manager"
 
 module A2a
   module Server
+    # Events module for managing event queues and consumers.
+    #
+    # This module provides infrastructure for streaming events from agent execution
+    # to clients, including EventQueue for buffering, EventConsumer for reading,
+    # and QueueManager for managing queue lifecycles.
     module Events
-      # Events module for managing event queues and consumers
     end
   end
 end

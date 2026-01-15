@@ -7,7 +7,10 @@ require "a2a/server/events/event_queue"
 require "a2a/types"
 
 RSpec.describe A2a::Server::Tasks::ResultAggregator do
-  let(:task_manager) { double("TaskManager", process: nil, get_task: nil) }
+  # TaskManager is an interface, so we use a simple double
+  # rubocop:disable RSpec/VerifiedDoubleReference
+  let(:task_manager) { instance_double("TaskManager", process: nil, get_task: nil) }
+  # rubocop:enable RSpec/VerifiedDoubleReference
   let(:aggregator) { described_class.new(task_manager) }
   let(:queue) { A2a::Server::Events::EventQueue.new }
   let(:consumer) { A2a::Server::Events::EventConsumer.new(queue) }

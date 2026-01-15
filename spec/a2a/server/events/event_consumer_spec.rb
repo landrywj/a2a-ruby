@@ -76,7 +76,9 @@ RSpec.describe A2a::Server::Events::EventConsumer do
       exception = StandardError.new("test error")
       consumer.agent_task_callback(exception)
 
-      expect { consumer.consume_all { |_e| } }.to raise_error(StandardError, "test error")
+      expect do
+        consumer.consume_all { |e| raise e if e }
+      end.to raise_error(StandardError, "test error")
     end
   end
 end

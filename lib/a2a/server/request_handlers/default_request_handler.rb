@@ -254,6 +254,7 @@ module A2a
         # @param params [Types::MessageSendParams] Parameters including the message and configuration.
         # @param context [ServerCallContext, nil] Context provided by the server.
         # @return [Array] A tuple of (task_manager, task_id, queue, result_aggregator, producer_thread)
+        # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/PerceivedComplexity
         def _setup_message_execution(params, context = nil)
           # Create task manager and validate existing task
           # Note: This assumes a TaskManager interface exists. If not, this will need to be implemented.
@@ -349,6 +350,7 @@ module A2a
 
           [task_manager, task_id, queue, result_aggregator, producer_thread]
         end
+        # rubocop:enable Metrics/AbcSize, Metrics/MethodLength, Metrics/PerceivedComplexity
 
         # Registers the agent execution thread with the handler.
         #
