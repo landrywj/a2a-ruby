@@ -10,7 +10,7 @@
 
 begin
   require "grpc"
-rescue LoadError => e
+rescue LoadError
   raise LoadError, "A2AGrpcTransport requires grpc gem to be installed. Install with: gem install grpc"
 end
 
@@ -39,10 +39,10 @@ module A2a
           @interceptors = interceptors || []
           @extensions = extensions
           @needs_extended_card = if agent_card
-                                  agent_card.supports_authenticated_extended_card == true
-                                else
-                                  true
-                                end
+                                   agent_card.supports_authenticated_extended_card == true
+                                 else
+                                   true
+                                 end
 
           # Get the gRPC service stub
           # Note: The actual stub class name depends on how proto files are generated
@@ -72,9 +72,7 @@ module A2a
         # @param interceptors [Array<CallInterceptor>] A list of interceptors
         # @return [Grpc] A Grpc transport instance
         def self.create(card:, url:, config:, interceptors:)
-          if config.grpc_channel_factory.nil?
-            raise ArgumentError, "grpc_channel_factory is required when using gRPC"
-          end
+          raise ArgumentError, "grpc_channel_factory is required when using gRPC" if config.grpc_channel_factory.nil?
 
           channel = config.grpc_channel_factory.call(url)
           new(
@@ -127,13 +125,11 @@ module A2a
           Enumerator.new do |yielder|
             call = @stub.send_streaming_message(proto_request, metadata: final_metadata)
             loop do
-              begin
-                response = call.read
-                result = Utils::FromProto.stream_response(response)
-                yielder << result
-              rescue GRPC::BadStatus => e
-                raise GrpcError.new(e.code, e.details || e.message)
-              end
+              response = call.read
+              result = Utils::FromProto.stream_response(response)
+              yielder << result
+            rescue GRPC::BadStatus => e
+              raise GrpcError.new(e.code, e.details || e.message)
             end
           rescue StopIteration
             # Stream ended normally
@@ -230,13 +226,11 @@ module A2a
           Enumerator.new do |yielder|
             call = @stub.task_subscription(proto_request, metadata: final_metadata)
             loop do
-              begin
-                response = call.read
-                result = Utils::FromProto.stream_response(response)
-                yielder << result
-              rescue GRPC::BadStatus => e
-                raise GrpcError.new(e.code, e.details || e.message)
-              end
+              response = call.read
+              result = Utils::FromProto.stream_response(response)
+              yielder << result
+            rescue GRPC::BadStatus => e
+              raise GrpcError.new(e.code, e.details || e.message)
             end
           rescue StopIteration
             # Stream ended normally
@@ -255,9 +249,7 @@ module A2a
           card = @agent_card
           return card if card && !@needs_extended_card
 
-          if card.nil? && !@needs_extended_card
-            raise ArgumentError, "Agent card is not available."
-          end
+          raise ArgumentError, "Agent card is not available." if card.nil? && !@needs_extended_card
 
           proto_class = get_proto_class("GetAgentCardRequest")
           proto_request = proto_class.new
@@ -294,14 +286,14 @@ module A2a
           @interceptors.each do |interceptor|
             # Convert proto request to hash for interceptor
             request_hash = proto_to_hash(proto_request)
-            final_request_hash, final_metadata = interceptor.intercept(
+            _, final_metadata = interceptor.intercept(
               method_name,
               request_hash,
               { headers: final_metadata },
               @agent_card,
               context
             )
-            # Note: We can't easily convert back from hash to proto, so we'll just use the metadata
+            # NOTE: We can't easily convert back from hash to proto, so we'll just use the metadata
             final_metadata = final_metadata[:headers] || final_metadata
           end
 
@@ -319,11 +311,9 @@ module A2a
 
         # Helper to get proto class by name
         def get_proto_class(class_name)
-          begin
-            A2a::Grpc::A2aPb2.const_get(class_name)
-          rescue NameError
-            raise LoadError, "A2A protobuf files not found. Please generate proto files from the A2A protocol specification."
-          end
+          A2a::Grpc::A2aPb2.const_get(class_name)
+        rescue NameError
+          raise LoadError, "A2A protobuf files not found. Please generate proto files from the A2A protocol specification."
         end
       end
 
@@ -334,7 +324,7 @@ module A2a
         def initialize(code, details = nil)
           @code = code
           @details = details
-          super("gRPC error (#{code}): #{details || 'Unknown error'}")
+          super("gRPC error (#{code}): #{details || "Unknown error"}")
         end
       end
     end

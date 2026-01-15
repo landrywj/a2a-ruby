@@ -28,6 +28,7 @@ Metrics/AbcSize:
     - 'lib/a2a/client/base_client.rb'
     - 'lib/a2a/client/task_manager.rb'
     - 'lib/a2a/client/transports/jsonrpc.rb'
+    - 'lib/a2a/utils/proto_utils.rb'
 
 Metrics/CyclomaticComplexity:
   Max: 20
@@ -45,6 +46,7 @@ Metrics/MethodLength:
     - 'lib/a2a/types/agent_card.rb'
     - 'lib/a2a/client/auth/interceptor.rb'
     - 'lib/a2a/client/base_client.rb'
+    - 'lib/a2a/utils/proto_utils.rb'
 
 Metrics/PerceivedComplexity:
   Max: 20
@@ -53,12 +55,15 @@ Metrics/PerceivedComplexity:
     - '**/initialize'
     - 'lib/a2a/types/agent_card.rb'
     - 'lib/a2a/client/auth/interceptor.rb'
+    - 'lib/a2a/utils/proto_utils.rb'
 
 Metrics/ClassLength:
   Max: 100
   Exclude:
     - 'lib/a2a/client/base_client.rb'
     - 'lib/a2a/client/transports/jsonrpc.rb'
+    - 'lib/a2a/client/transports/grpc.rb'
+    - 'lib/a2a/utils/proto_utils.rb'
     - 'lib/a2a/server/request_handlers/jsonrpc_handler.rb'
     - 'lib/a2a/server/request_handlers/rest_handler.rb'
     - 'lib/a2a/server/request_handlers/default_request_handler.rb'
@@ -117,6 +122,7 @@ Lint/MissingSuper:
     - 'lib/a2a/client/auth/in_memory_credential_store.rb'
     - 'lib/a2a/client/auth/interceptor.rb'
     - 'lib/a2a/client/transports/jsonrpc.rb'
+    - 'lib/a2a/client/transports/grpc.rb'
     - 'lib/a2a/server/request_handlers/default_request_handler.rb'
 
 # RSpec style configuration - relaxed

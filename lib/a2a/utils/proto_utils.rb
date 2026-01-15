@@ -15,8 +15,8 @@ require_relative "../types"
 module A2a
   module Utils
     # Regexp patterns for matching task resource names
-    TASK_NAME_MATCH = /\Atasks\/([^\/]+)\z/.freeze
-    TASK_PUSH_CONFIG_NAME_MATCH = /\Atasks\/([^\/]+)\/pushNotificationConfigs\/([^\/]+)\z/.freeze
+    TASK_NAME_MATCH = %r{\Atasks/([^/]+)\z}
+    TASK_PUSH_CONFIG_NAME_MATCH = %r{\Atasks/([^/]+)/pushNotificationConfigs/([^/]+)\z}
 
     # Converts Ruby types to protobuf types
     class ToProto
@@ -25,7 +25,7 @@ module A2a
         def message(msg)
           return nil if msg.nil?
 
-          # Note: This assumes A2a::Grpc::A2aPb2::Message exists
+          # NOTE: This assumes A2a::Grpc::A2aPb2::Message exists
           # The actual proto file needs to be generated from the A2A protocol specification
           proto_class = get_proto_class("Message")
           proto_class.new(
@@ -425,29 +425,30 @@ module A2a
         end
 
         # Converts OAuthFlows to a protobuf OAuthFlows
+        # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
         def oauth2_flows(flows)
           proto_class = get_proto_class("OAuthFlows")
           # OAuth flows in Ruby are stored as hashes, not objects
-          if flows.is_a?(Hash)
-            flows_hash = flows
-          else
-            flows_hash = {
-              authorization_code: flows.authorization_code,
-              client_credentials: flows.client_credentials,
-              implicit: flows.implicit,
-              password: flows.password
-            }
-          end
+          flows_hash = if flows.is_a?(Hash)
+                         flows
+                       else
+                         {
+                           authorization_code: flows.authorization_code,
+                           client_credentials: flows.client_credentials,
+                           implicit: flows.implicit,
+                           password: flows.password
+                         }
+                       end
 
           if flows_hash[:authorization_code] || flows_hash["authorization_code"]
             flow = flows_hash[:authorization_code] || flows_hash["authorization_code"]
             auth_code_class = get_proto_class("AuthorizationCodeOAuthFlow")
             proto_class.new(
               authorization_code: auth_code_class.new(
-                authorization_url: (flow[:authorization_url] || flow["authorization_url"] || ""),
-                refresh_url: (flow[:refresh_url] || flow["refresh_url"] || ""),
-                scopes: (flow[:scopes] || flow["scopes"] || {}),
-                token_url: (flow[:token_url] || flow["token_url"] || "")
+                authorization_url: flow[:authorization_url] || flow["authorization_url"] || "",
+                refresh_url: flow[:refresh_url] || flow["refresh_url"] || "",
+                scopes: flow[:scopes] || flow["scopes"] || {},
+                token_url: flow[:token_url] || flow["token_url"] || ""
               )
             )
           elsif flows_hash[:client_credentials] || flows_hash["client_credentials"]
@@ -455,9 +456,9 @@ module A2a
             client_creds_class = get_proto_class("ClientCredentialsOAuthFlow")
             proto_class.new(
               client_credentials: client_creds_class.new(
-                refresh_url: (flow[:refresh_url] || flow["refresh_url"] || ""),
-                scopes: (flow[:scopes] || flow["scopes"] || {}),
-                token_url: (flow[:token_url] || flow["token_url"] || "")
+                refresh_url: flow[:refresh_url] || flow["refresh_url"] || "",
+                scopes: flow[:scopes] || flow["scopes"] || {},
+                token_url: flow[:token_url] || flow["token_url"] || ""
               )
             )
           elsif flows_hash[:implicit] || flows_hash["implicit"]
@@ -465,9 +466,9 @@ module A2a
             implicit_class = get_proto_class("ImplicitOAuthFlow")
             proto_class.new(
               implicit: implicit_class.new(
-                authorization_url: (flow[:authorization_url] || flow["authorization_url"] || ""),
-                refresh_url: (flow[:refresh_url] || flow["refresh_url"] || ""),
-                scopes: (flow[:scopes] || flow["scopes"] || {})
+                authorization_url: flow[:authorization_url] || flow["authorization_url"] || "",
+                refresh_url: flow[:refresh_url] || flow["refresh_url"] || "",
+                scopes: flow[:scopes] || flow["scopes"] || {}
               )
             )
           elsif flows_hash[:password] || flows_hash["password"]
@@ -475,9 +476,9 @@ module A2a
             password_class = get_proto_class("PasswordOAuthFlow")
             proto_class.new(
               password: password_class.new(
-                refresh_url: (flow[:refresh_url] || flow["refresh_url"] || ""),
-                scopes: (flow[:scopes] || flow["scopes"] || {}),
-                token_url: (flow[:token_url] || flow["token_url"] || "")
+                refresh_url: flow[:refresh_url] || flow["refresh_url"] || "",
+                scopes: flow[:scopes] || flow["scopes"] || {},
+                token_url: flow[:token_url] || flow["token_url"] || ""
               )
             )
           else
@@ -519,11 +520,10 @@ module A2a
         def get_proto_class(class_name)
           # This assumes the proto files are generated and available
           # The actual module structure will depend on how the proto files are generated
-          begin
-            A2a::Grpc::A2aPb2.const_get(class_name)
-          rescue NameError
-            raise LoadError, "A2A protobuf files not found. Please generate proto files from the A2A protocol specification."
-          end
+
+          A2a::Grpc::A2aPb2.const_get(class_name)
+        rescue NameError
+          raise LoadError, "A2A protobuf files not found. Please generate proto files from the A2A protocol specification."
         end
 
         # Converts a value to a Struct value
@@ -617,8 +617,8 @@ module A2a
         # Converts a protobuf FilePart to a FileWithUri or FileWithBytes
         def file(file_pb)
           common_args = {
-            mime_type: (file_pb.mime_type && !file_pb.mime_type.to_s.empty?) ? file_pb.mime_type : nil,
-            name: (file_pb.name && !file_pb.name.to_s.empty?) ? file_pb.name : nil
+            mime_type: file_pb.mime_type && !file_pb.mime_type.to_s.empty? ? file_pb.mime_type : nil,
+            name: file_pb.name && !file_pb.name.to_s.empty? ? file_pb.name : nil
           }
           if file_pb.respond_to?(:file_with_uri) && file_pb.file_with_uri && !file_pb.file_with_uri.to_s.empty?
             Types::FileWithUri.new(uri: file_pb.file_with_uri, **common_args)
@@ -749,9 +749,7 @@ module A2a
         # Converts a protobuf TaskPushNotificationConfig to a Ruby TaskPushNotificationConfig
         def task_push_notification_config(config_pb)
           match = TASK_PUSH_CONFIG_NAME_MATCH.match(config_pb.name)
-          unless match
-            raise ArgumentError, "Bad TaskPushNotificationConfig resource name #{config_pb.name}"
-          end
+          raise ArgumentError, "Bad TaskPushNotificationConfig resource name #{config_pb.name}" unless match
 
           Types::TaskPushNotificationConfig.new(
             task_id: match[1],
@@ -765,7 +763,7 @@ module A2a
             id: config_pb.id,
             url: config_pb.url,
             token: config_pb.token,
-            authentication: (config_pb.respond_to?(:authentication) && config_pb.authentication) ? authentication_info(config_pb.authentication) : nil
+            authentication: config_pb.respond_to?(:authentication) && config_pb.authentication ? authentication_info(config_pb.authentication) : nil
           )
         end
 
@@ -960,6 +958,7 @@ module A2a
             raise ArgumentError, "Unknown oauth flow definition"
           end
         end
+        # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
         # Converts a protobuf AgentInterface to a Ruby AgentInterface
         def agent_interface(interface_pb)
@@ -981,9 +980,7 @@ module A2a
         # Converts a protobuf GetTaskRequest to TaskQueryParams
         def task_query_params(request_pb)
           match = TASK_NAME_MATCH.match(request_pb.name)
-          unless match
-            raise ArgumentError, "No task for #{request_pb.name}"
-          end
+          raise ArgumentError, "No task for #{request_pb.name}" unless match
 
           Types::TaskQueryParams.new(
             id: match[1],
@@ -995,9 +992,7 @@ module A2a
         # Converts a protobuf CancelTaskRequest or TaskSubscriptionRequest to TaskIdParams
         def task_id_params(request_pb)
           match = TASK_NAME_MATCH.match(request_pb.name)
-          unless match
-            raise ArgumentError, "No task for #{request_pb.name}"
-          end
+          raise ArgumentError, "No task for #{request_pb.name}" unless match
 
           Types::TaskIdParams.new(id: match[1])
         end
@@ -1006,11 +1001,9 @@ module A2a
 
         # Helper to get proto class by name
         def get_proto_class(class_name)
-          begin
-            A2a::Grpc::A2aPb2.const_get(class_name)
-          rescue NameError
-            raise LoadError, "A2A protobuf files not found. Please generate proto files from the A2A protocol specification."
-          end
+          A2a::Grpc::A2aPb2.const_get(class_name)
+        rescue NameError
+          raise LoadError, "A2A protobuf files not found. Please generate proto files from the A2A protocol specification."
         end
 
         # Converts a Struct value to a Ruby value
