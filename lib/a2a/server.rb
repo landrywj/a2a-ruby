@@ -2,6 +2,8 @@
 
 require_relative "server/context"
 require_relative "server/errors"
+require_relative "server/events"
+require_relative "server/tasks"
 require_relative "server/request_handlers/request_handler"
 require_relative "server/request_handlers/jsonrpc_handler"
 require_relative "server/request_handlers/rest_handler"
