@@ -68,9 +68,10 @@ module A2a
             rescue Timeout::Error
               # Continue polling until there is a final event
               next
-            rescue ThreadError => e
+            rescue ThreadError
               # Queue is closed or empty
               break if @queue.closed?
+
               # If queue is empty but not closed, continue waiting
               next
             rescue StandardError => e
@@ -95,10 +96,7 @@ module A2a
 
         def final_event?(event)
           return true if event.is_a?(Types::Message)
-
-          if event.is_a?(Types::TaskStatusUpdateEvent)
-            return true if event.final
-          end
+          return true if event.is_a?(Types::TaskStatusUpdateEvent) && event.final
 
           if event.is_a?(Types::Task)
             terminal_states = [

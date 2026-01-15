@@ -11,9 +11,7 @@ module A2a
     # Usage:
     #   A2a::Rails::AgentExecutionJob.perform_later(agent_executor_class, request_context_data, queue_id)
     class AgentExecutionJob < (defined?(ActiveJob::Base) ? ActiveJob::Base : Object)
-      if respond_to?(:queue_as)
-        queue_as :a2a_agent_execution
-      end
+      queue_as :a2a_agent_execution if respond_to?(:queue_as)
 
       # Performs agent execution.
       #
@@ -39,7 +37,8 @@ module A2a
       def deserialize_request_context(data)
         # Deserialize the request context from hash
         # In a real implementation, this would reconstruct the RequestContext object
-        OpenStruct.new(data)
+        # Using Hash instead of OpenStruct per RuboCop
+        data
       end
 
       def retrieve_queue(queue_id)

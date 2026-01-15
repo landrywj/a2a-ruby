@@ -130,9 +130,7 @@ module A2a
 
           begin
             result_aggregator.consume_and_emit(consumer) do |event|
-              if event.is_a?(Types::Task)
-                _validate_task_id_match(task_id, event.id)
-              end
+              _validate_task_id_match(task_id, event.id) if event.is_a?(Types::Task)
 
               _send_push_notification_if_needed(task_id, result_aggregator)
 
@@ -141,19 +139,17 @@ module A2a
 
               yield event
             end
-          rescue StandardError => e
+          rescue StandardError
             # Client disconnected: continue consuming and persisting events in the background
             # Use ActiveJob if available, otherwise fall back to threads
             if defined?(A2a::Rails::ProcessEventJob)
               _enqueue_background_consumption(task_id, queue, task_manager)
             else
               bg_thread = Thread.new do
-                begin
-                  result_aggregator.consume_all(consumer)
-                rescue StandardError => bg_error
-                  # Log background consumption errors but don't raise
-                  # In production, you'd want proper logging here
-                end
+                result_aggregator.consume_all(consumer)
+              rescue StandardError
+                # Log background consumption errors but don't raise
+                # In production, you'd want proper logging here
               end
               bg_thread.name = "background_consume:#{task_id}"
               _track_background_task(bg_thread)
@@ -207,7 +203,7 @@ module A2a
         # @param context [ServerCallContext, nil] Context provided by the server.
         # @yield [Object] Event objects from the agent's ongoing execution
         # @return [Enumerator] An enumerator that yields Event objects
-        def on_resubscribe_to_task(params, context = nil)
+        def on_resubscribe_to_task(params, context = nil, &)
           return enum_for(:on_resubscribe_to_task, params, context) unless block_given?
 
           # Get or tap the existing queue for this task
@@ -216,9 +212,7 @@ module A2a
 
           consumer = Events::EventConsumer.new(queue)
 
-          consumer.consume_all do |event|
-            yield event
-          end
+          consumer.consume_all(&)
         end
 
         # Default handler for 'tasks/pushNotificationConfig/list'.
@@ -250,11 +244,9 @@ module A2a
         # @param request_context [Object] The request context for the agent (must respond to task_id, message, etc.)
         # @param queue [Events::EventQueue] The event queue for the agent to publish to.
         def _run_event_stream(request_context, queue)
-          begin
-            @agent_executor.execute(request_context, queue)
-          ensure
-            queue.close
-          end
+          @agent_executor.execute(request_context, queue)
+        ensure
+          queue.close
         end
 
         # Common setup logic for both streaming and non-streaming message handling.
@@ -305,19 +297,21 @@ module A2a
                               )
                             else
                               # Simple fallback - create a basic context object
-                              OpenStruct.new(
+                              # Using Hash instead of OpenStruct per RuboCop
+                              {
                                 task_id: task&.id || SecureRandom.uuid,
                                 message: params.message,
                                 context_id: params.message.context_id,
                                 current_task: task
-                              )
+                              }
                             end
 
-          task_id = request_context.task_id || SecureRandom.uuid
+          task_id = (request_context.is_a?(Hash) ? request_context[:task_id] : request_context.task_id) || SecureRandom.uuid
 
           # Set push notification config if provided
-          if @push_config_store && params.configuration && params.configuration.push_notification_config
-            @push_config_store.set_info(task_id, params.configuration.push_notification_config)
+          if @push_config_store && params.configuration&.push_notification_config
+            @push_config_store&.set_info(task_id,
+                                         params.configuration.push_notification_config)
           end
 
           # Create or tap the queue for this task
@@ -332,7 +326,7 @@ module A2a
             # Store queue and request context for ActiveJob
             queue_id = _store_queue_for_job(queue)
             request_context_data = _serialize_request_context(request_context)
-            
+
             job = A2a::Rails::AgentExecutionJob.perform_later(
               @agent_executor.class.name,
               request_context_data,
@@ -342,15 +336,11 @@ module A2a
           else
             # Fallback to thread-based execution
             producer_thread = Thread.new do
-              begin
-                _run_event_stream(request_context, queue)
-              rescue StandardError => e
-                # Store exception to be handled by consumer
-                producer_thread[:exception] = e
-                if producer_thread[:exception_handler]
-                  producer_thread[:exception_handler].call(e)
-                end
-              end
+              _run_event_stream(request_context, queue)
+            rescue StandardError => e
+              # Store exception to be handled by consumer
+              producer_thread[:exception] = e
+              producer_thread[:exception_handler]&.call(e)
             end
             producer_thread.name = "agent_executor:#{task_id}"
           end
@@ -384,7 +374,7 @@ module A2a
             begin
               # Check if thread raised an exception
               thread.value if thread.alive? == false
-            rescue StandardError => e
+            rescue StandardError
               # Log exception (in production, use proper logging)
               # For now, we'll just track it
             ensure
@@ -400,9 +390,7 @@ module A2a
         # @param producer_thread [Thread, ActiveJob::Base] The thread or job running the agent execution
         # @param task_id [String] The task ID
         def _cleanup_producer(producer_thread, task_id)
-          if producer_thread.is_a?(Thread)
-            producer_thread.join if producer_thread.alive?
-          end
+          producer_thread.join if producer_thread.is_a?(Thread) && producer_thread.alive?
           @queue_manager.close(task_id)
           @running_agents_lock.synchronize do
             @running_agents.delete(task_id)
@@ -460,17 +448,21 @@ module A2a
 
         # Serializes a request context for ActiveJob.
         #
-        # @param request_context [Object] The request context
+        # @param request_context [Object, Hash] The request context
         # @return [Hash] Serialized context data
         def _serialize_request_context(request_context)
           # In a real implementation, this would serialize the context
           # For now, return a basic hash
-          {
-            task_id: request_context.task_id,
-            context_id: request_context.context_id,
-            message: request_context.message&.to_h,
-            current_task: request_context.current_task&.to_h
-          }
+          if request_context.is_a?(Hash)
+            request_context
+          else
+            {
+              task_id: request_context.task_id,
+              context_id: request_context.context_id,
+              message: request_context.message&.to_h,
+              current_task: request_context.current_task&.to_h
+            }
+          end
         end
 
         # Validates that agent-generated task ID matches the expected task ID.
@@ -494,9 +486,9 @@ module A2a
           return unless @push_sender && task_id
 
           latest_task = result_aggregator.current_result
-          if latest_task.is_a?(Types::Task)
-            @push_sender.send_notification(latest_task)
-          end
+          return unless latest_task.is_a?(Types::Task)
+
+          @push_sender.send_notification(latest_task)
         end
       end
     end

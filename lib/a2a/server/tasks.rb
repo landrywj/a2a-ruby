@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "server/tasks/result_aggregator"
+require_relative "tasks/result_aggregator"
 
 module A2a
   module Server

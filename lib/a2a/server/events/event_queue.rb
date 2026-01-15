@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "thread"
 require_relative "../../types"
 
 module A2a
@@ -57,9 +56,7 @@ module A2a
         # @raise [ThreadError] If `no_wait` is true and the queue is empty, or if the queue is closed.
         def dequeue_event(no_wait: false)
           @lock.synchronize do
-            if @closed && @queue.empty?
-              raise ThreadError, "Queue is closed"
-            end
+            raise ThreadError, "Queue is closed" if @closed && @queue.empty?
           end
 
           if no_wait
@@ -101,6 +98,7 @@ module A2a
         def close(immediate: false)
           @lock.synchronize do
             return if @closed && !immediate
+
             @closed = true
           end
 
@@ -129,19 +127,15 @@ module A2a
           cleared_count = 0
           @lock.synchronize do
             loop do
-              begin
-                event = @queue.pop(true) # non-blocking
-                cleared_count += 1
-              rescue ThreadError
-                break
-              end
+              @queue.pop(true) # non-blocking
+              cleared_count += 1
+            rescue ThreadError
+              break
             end
           end
 
           # Clear all child queues
-          if clear_child_queues && !@children.empty?
-            @children.each { |child| child.clear_events(clear_child_queues: true) }
-          end
+          @children.each { |child| child.clear_events(clear_child_queues: true) } if clear_child_queues && !@children.empty?
 
           cleared_count
         end

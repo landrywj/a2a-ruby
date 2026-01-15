@@ -16,6 +16,7 @@ module A2a
       # a distributed approach for scalable deployments.
       class InMemoryQueueManager < QueueManager
         def initialize
+          super
           @task_queue = {}
           @lock = Mutex.new
         end

@@ -36,12 +36,10 @@ module A2a
       # @param task_id [String] The task ID
       # @param event [Object] The event to broadcast
       def self.broadcast_event(task_id, event)
-        if defined?(ActionCable::Server::Broadcasting)
-          ActionCable.server.broadcast("a2a_task_#{task_id}", event: serialize_event(event))
-        end
-      end
+        return unless defined?(ActionCable::Server::Broadcasting)
 
-      private
+        ActionCable.server.broadcast("a2a_task_#{task_id}", event: serialize_event(event))
+      end
 
       def self.serialize_event(event)
         # Serialize the event to a hash for JSON transmission

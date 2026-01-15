@@ -10,9 +10,7 @@ module A2a
     # Usage:
     #   A2a::Rails::ProcessEventJob.perform_later(task_id, queue_id, task_manager_id)
     class ProcessEventJob < (defined?(ActiveJob::Base) ? ActiveJob::Base : Object)
-      if respond_to?(:queue_as)
-        queue_as :a2a_events
-      end
+      queue_as :a2a_events if respond_to?(:queue_as)
 
       # Performs background event consumption.
       #
@@ -37,9 +35,7 @@ module A2a
           result_aggregator.consume_all(consumer)
         rescue StandardError => e
           # Log error (in production, use Rails.logger)
-          if defined?(Rails) && Rails.respond_to?(:logger)
-            Rails.logger.error("ProcessEventJob failed for task #{task_id}: #{e.message}")
-          end
+          Rails.logger&.error("ProcessEventJob failed for task #{task_id}: #{e.message}")
           raise
         end
       end

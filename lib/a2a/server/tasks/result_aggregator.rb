@@ -105,28 +105,21 @@ module A2a
 
             @task_manager.process(event)
 
-            should_interrupt = false
-            is_auth_required = (
-              (event.is_a?(Types::Task) || event.is_a?(Types::TaskStatusUpdateEvent)) &&
-              event.status.state == Types::TaskState::AUTH_REQUIRED
-            )
+            is_auth_required = (event.is_a?(Types::Task) || event.is_a?(Types::TaskStatusUpdateEvent)) &&
+                               event.status.state == Types::TaskState::AUTH_REQUIRED
 
             # Always interrupt on auth_required, as it needs external action.
-            if is_auth_required
-              should_interrupt = true
             # For non-blocking calls, interrupt as soon as a task is available.
-            elsif !blocking
-              should_interrupt = true
-            end
+            should_interrupt = is_auth_required || !blocking
 
-            if should_interrupt
-              # Continue consuming the rest of the events in the background.
-              Thread.new do
-                _continue_consuming(event_stream, event_callback)
-              end
-              interrupted = true
-              break
+            next unless should_interrupt
+
+            # Continue consuming the rest of the events in the background.
+            Thread.new do
+              _continue_consuming(event_stream, event_callback)
             end
+            interrupted = true
+            break
           end
 
           [@task_manager.get_task, interrupted]
