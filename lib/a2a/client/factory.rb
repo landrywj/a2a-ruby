@@ -162,47 +162,58 @@ module A2a
       private
 
       def register_defaults(supported)
-        # Empty support list implies JSON-RPC only.
-        if supported.empty? || supported.include?(Types::TransportProtocol::JSONRPC)
-          register(
-            Types::TransportProtocol::JSONRPC,
-            lambda do |card, url, config, interceptors|
-              http_client = config.httpx_client || Faraday.new
-              Transports::JSONRPC.new(
-                http_client: http_client,
-                agent_card: card,
-                url: url,
-                interceptors: interceptors || [],
-                extensions: config.extensions
-              )
-            end
-          )
-        end
+        register_jsonrpc_transport(supported) if supported.empty? || supported.include?(Types::TransportProtocol::JSONRPC)
+        register_rest_transport(supported) if supported.include?(Types::TransportProtocol::HTTP_JSON)
+        register_grpc_transport(supported) if supported.include?(Types::TransportProtocol::GRPC)
+      end
 
-        if supported.include?(Types::TransportProtocol::HTTP_JSON)
-          register(
-            Types::TransportProtocol::HTTP_JSON,
-            lambda do |card, url, config, interceptors|
-              http_client = config.httpx_client || Faraday.new
-              Transports::REST.new(
-                http_client: http_client,
-                agent_card: card,
-                url: url,
-                interceptors: interceptors || [],
-                extensions: config.extensions
-              )
-            end
-          )
-        end
-
-        return unless supported.include?(Types::TransportProtocol::GRPC)
-
+      def register_jsonrpc_transport(_supported)
         register(
-          Types::TransportProtocol::GRPC,
-          lambda do |_card, _url, _config, _interceptors|
-            raise NotImplementedError, "gRPC transport not yet implemented. This will be implemented in Phase 8."
+          Types::TransportProtocol::JSONRPC,
+          lambda do |card, url, config, interceptors|
+            http_client = config.httpx_client || Faraday.new
+            Transports::JSONRPC.new(
+              http_client: http_client,
+              agent_card: card,
+              url: url,
+              interceptors: interceptors || [],
+              extensions: config.extensions
+            )
           end
         )
+      end
+
+      def register_rest_transport(_supported)
+        register(
+          Types::TransportProtocol::HTTP_JSON,
+          lambda do |card, url, config, interceptors|
+            http_client = config.httpx_client || Faraday.new
+            Transports::REST.new(
+              http_client: http_client,
+              agent_card: card,
+              url: url,
+              interceptors: interceptors || [],
+              extensions: config.extensions
+            )
+          end
+        )
+      end
+
+      def register_grpc_transport(_supported)
+        require_relative "transports/grpc"
+        register(
+          Types::TransportProtocol::GRPC,
+          lambda do |card, url, config, interceptors|
+            Transports::Grpc.create(
+              card: card,
+              url: url,
+              config: config,
+              interceptors: interceptors || []
+            )
+          end
+        )
+      rescue LoadError => e
+        raise LoadError, "gRPC transport requires grpc gem and proto files. #{e.message}"
       end
 
       def select_transport(card)
